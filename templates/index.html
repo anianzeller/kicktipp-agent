@@ -250,6 +250,21 @@
     }
     .alt-ev { color: var(--muted); font-size: .63rem; margin-left: 3px; font-family: var(--ff-b); font-weight: 400; }
 
+    /* ── CLOSE-CALL SECTION ──────────────────── */
+    .close-alts {
+      border-top: 1px solid #4a2e0a; background: #120a00;
+      padding: .6rem 1.25rem;
+      display: flex; align-items: center; gap: .75rem; flex-wrap: wrap;
+    }
+    .close-alts-label { font-size: .67rem; font-weight: 700; color: var(--gold); white-space: nowrap; }
+    .close-alt-item {
+      display: flex; flex-direction: column; align-items: center;
+      background: #1e1000; border: 1px solid #78350f; border-radius: 10px;
+      padding: .35rem .75rem; min-width: 52px;
+    }
+    .close-alt-score { font-family: var(--ff-d); font-weight: 800; font-size: 1.15rem; letter-spacing: 3px; color: #fcd34d; line-height: 1.1; }
+    .close-alt-ev { font-size: .62rem; color: #a16207; margin-top: 1px; }
+
     /* ── FOOTER ──────────────────────────────── */
     .page-footer {
       text-align: center; font-size: .67rem; color: var(--muted);
@@ -381,10 +396,8 @@
         <div class="topbar-left">
           <span class="card-time">
             <span class="time-de">{{ t.time_de }}<span class="time-label"> MESZ</span></span>
-            {% if t.time_local %}
             <span class="time-sep">/</span>
-            <span class="time-local">{{ t.time_local }}<span class="time-label"> Ortszeit</span></span>
-            {% endif %}
+            <span class="time-local">{% if t.tz_approx %}~{% endif %}{{ t.time_local }}<span class="time-label"> Ortszeit</span></span>
           </span>
           {% if t.stadium %}<span class="card-stadium">{{ t.stadium }}</span>{% endif %}
         </div>
@@ -417,18 +430,32 @@
         </div>
       </div>
 
+      {% if t.close_call %}
+      <div class="close-alts">
+        <span class="close-alts-label">⚠️ Knapp &mdash; auch m&ouml;glich:</span>
+        {% for alt in t.top_tips[1:] %}
+        <div class="close-alt-item">
+          <span class="close-alt-score">{{ alt.score }}</span>
+          <span class="close-alt-ev">EV {{ alt.ev }}</span>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
       <div class="card-footer">
         <div class="odds-row">
           <div class="odds-pill"><span class="lbl">1</span><span class="val">{{ t.odds_1 }}</span><span class="pct">({{ t.implied_1 }})</span></div>
           <div class="odds-pill"><span class="lbl">X</span><span class="val">{{ t.odds_x }}</span><span class="pct">({{ t.implied_x }})</span></div>
           <div class="odds-pill"><span class="lbl">2</span><span class="val">{{ t.odds_2 }}</span><span class="pct">({{ t.implied_2 }})</span></div>
         </div>
+        {% if not t.close_call %}
         <div class="alts">
           <span class="alts-label">Alt.:</span>
           {% for alt in t.top_tips[1:] %}
           <span class="alt-chip">{{ alt.score }}<span class="alt-ev">{{ alt.ev }}</span></span>
           {% endfor %}
         </div>
+        {% endif %}
       </div>
 
     </div>
