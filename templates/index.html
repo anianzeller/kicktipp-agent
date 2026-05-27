@@ -128,8 +128,8 @@
     .summary td { padding: .5rem .5rem; border-bottom: 1px solid #131f33; vertical-align: middle; }
     .summary tbody tr:hover td { background: rgba(59,130,246,.04); }
     .summary tr:last-child td { border-bottom: none; }
-    .s-flag { font-size: .9rem; margin-right: 4px; }
     .s-tip { font-family: var(--ff-d); font-weight: 700; font-size: 1rem; letter-spacing: 1px; color: #fff; }
+    .s-de-badge { background: #3a2800; border: 1px solid var(--gold); color: var(--gold); font-size: .6rem; font-weight: 800; border-radius: 4px; padding: 1px 5px; margin-left: 5px; vertical-align: middle; letter-spacing: .5px; }
     .s-ev { color: var(--green); font-weight: 600; }
     .s-date { color: var(--muted2); white-space: nowrap; }
     .close-badge { background: #78350f; color: #fcd34d; font-size: .62rem; font-weight: 700; border-radius: 4px; padding: 2px 7px; }
@@ -177,6 +177,9 @@
     .match-card:hover { box-shadow: 0 10px 40px rgba(0,0,0,.5); transform: translateY(-2px); border-color: #2a3f60; }
     .match-card.close-call::before { background: linear-gradient(90deg, transparent 0%, var(--gold) 40%, var(--gold) 60%, transparent 100%); opacity: .8; }
     .match-card.close-call { border-color: #4a2e0a; }
+    .match-card.germany-game { border-color: #7a5800; box-shadow: 0 6px 28px rgba(0,0,0,.4), 0 0 0 1px #f59e0b30; }
+    .match-card.germany-game::before { background: linear-gradient(90deg, transparent 0%, #000 20%, #cc0000 50%, var(--gold) 80%, transparent 100%); opacity: .9; }
+    .de-badge { background: #3a2800; border: 1px solid var(--gold); color: var(--gold); font-size: .62rem; font-weight: 800; border-radius: 4px; padding: 2px 7px; letter-spacing: .5px; }
 
     /* ── TOPBAR ──────────────────────────────── */
     .card-topbar {
@@ -205,9 +208,6 @@
     .team { display: flex; flex-direction: column; gap: .3rem; }
     .team.home { align-items: flex-end; text-align: right; }
     .team.away { align-items: flex-start; text-align: left; }
-    .team-nameline { display: flex; align-items: center; gap: .45rem; }
-    .team.home .team-nameline { flex-direction: row-reverse; }
-    .team-flag { font-size: 1.8rem; line-height: 1; filter: drop-shadow(0 2px 4px rgba(0,0,0,.4)); }
     .team-name { font-family: var(--ff-d); font-weight: 700; font-size: 1.3rem; letter-spacing: .3px; line-height: 1.1; }
     .team-role { font-size: .6rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1.2px; }
 
@@ -260,7 +260,6 @@
       .team-name { font-size: 1rem; }
       .tip-score { font-size: 1.6rem; letter-spacing: 3px; }
       .scoreboard { gap: .5rem; padding: .9rem .9rem .75rem; }
-      .team-flag { font-size: 1.3rem; }
     }
   </style>
 </head>
@@ -333,13 +332,13 @@
     <div style="overflow-x:auto;">
       <table>
         <thead>
-          <tr><th>Spiel</th><th>Datum</th><th>Tipp</th><th>EV</th><th></th></tr>
+          <tr><th>Spiel</th><th>Datum &amp; Zeit (MESZ)</th><th>Tipp</th><th>EV</th><th></th></tr>
         </thead>
         <tbody>
           {% for t in tips %}
-          <tr>
-            <td><span class="s-flag">{{ t.flag_home }}</span>{{ t.home }} &mdash; {{ t.away }}<span class="s-flag" style="margin-left:4px">{{ t.flag_away }}</span></td>
-            <td class="s-date">{{ t.date }} {{ t.time_de }}</td>
+          <tr{% if t.home == 'Germany' or t.away == 'Germany' %} style="background:rgba(245,158,11,.06);"{% endif %}>
+            <td>{{ t.home }} &mdash; {{ t.away }}{% if t.home == 'Germany' or t.away == 'Germany' %}<span class="s-de-badge">DE</span>{% endif %}</td>
+            <td class="s-date">{{ t.date }}&nbsp; {{ t.time_de }}</td>
             <td class="s-tip">{{ t.tip }}</td>
             <td class="s-ev">{{ t.ev }}</td>
             <td>{% if t.close_call %}<span class="close-badge">knapp</span>{% endif %}</td>
@@ -375,7 +374,8 @@
       <div class="date-header">{{ t.date }}</div>
     {% endif %}
 
-    <div class="match-card {% if t.close_call %}close-call{% endif %}">
+    {% set is_de = t.home == 'Germany' or t.away == 'Germany' %}
+    <div class="match-card {% if t.close_call %}close-call{% endif %}{% if is_de %} germany-game{% endif %}">
 
       <div class="card-topbar">
         <div class="topbar-left">
@@ -389,6 +389,7 @@
           {% if t.stadium %}<span class="card-stadium">{{ t.stadium }}</span>{% endif %}
         </div>
         <div class="topbar-right">
+          {% if is_de %}<span class="de-badge">Deutschland</span>{% endif %}
           <span class="bm-count">{{ t.n_bookmakers }} Buchmacher</span>
           {% if t.close_call %}<span class="close-badge">&#9888; Alternative pr&uuml;fen</span>{% endif %}
         </div>
@@ -396,10 +397,7 @@
 
       <div class="scoreboard">
         <div class="team home">
-          <div class="team-nameline">
-            <span class="team-flag">{{ t.flag_home }}</span>
-            <span class="team-name">{{ t.home }}</span>
-          </div>
+          <span class="team-name">{{ t.home }}</span>
           <span class="team-role">Heim</span>
         </div>
         <div class="tip-center">
@@ -414,10 +412,7 @@
           {% endif %}
         </div>
         <div class="team away">
-          <div class="team-nameline">
-            <span class="team-flag">{{ t.flag_away }}</span>
-            <span class="team-name">{{ t.away }}</span>
-          </div>
+          <span class="team-name">{{ t.away }}</span>
           <span class="team-role">Gast</span>
         </div>
       </div>
