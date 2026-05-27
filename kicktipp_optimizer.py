@@ -26,9 +26,23 @@ Adjustment-Konvention:
     Normal: 0.80 - 1.20. Ausserhalb nur mit starker Begruendung.
 """
 
+import math
 import numpy as np
-from scipy.stats import poisson
-from scipy.optimize import minimize
+
+
+def _poisson_pmf(k, mu):
+    """Poisson PMF via log-gamma — works for scalar k or 1-D numpy array."""
+    if np.isscalar(k):
+        if mu <= 0:
+            return 1.0 if k == 0 else 0.0
+        return math.exp(-mu + k * math.log(mu) - math.lgamma(k + 1))
+    k = np.asarray(k, dtype=float)
+    out = np.zeros_like(k)
+    if mu > 0:
+        out = np.exp(-mu + k * math.log(mu) - np.array([math.lgamma(ki + 1) for ki in k]))
+    else:
+        out[k == 0] = 1.0
+    return out
 
 
 # ----- Konfigurierbare Punkteregeln -----
@@ -50,13 +64,13 @@ def odds_to_probs(odds_1, odds_x, odds_2):
 
 # ----- 2. P(1X2) -> erwartete Tore -----
 def expected_goals_from_probs(p_home, p_draw, p_away, max_goals=10):
-    """Finde (lambda_home, lambda_away), die zur 1X2-Verteilung passen."""
-    def loss(params):
-        lh, la = params
-        if lh <= 0.05 or la <= 0.05:
-            return 1e6
-        ph = poisson.pmf(np.arange(max_goals + 1), lh)
-        pa = poisson.pmf(np.arange(max_goals + 1), la)
+    """Finde (lambda_home, lambda_away), die zur 1X2-Verteilung passen.
+    Zweistufige Gittersuche ersetzt scipy.optimize (kein scipy noetig)."""
+    k = np.arange(max_goals + 1)
+
+    def loss(lh, la):
+        ph = _poisson_pmf(k, lh)
+        pa = _poisson_pmf(k, la)
         m = np.outer(ph, pa)
         return (
             (np.tril(m, -1).sum() - p_home) ** 2
@@ -64,8 +78,23 @@ def expected_goals_from_probs(p_home, p_draw, p_away, max_goals=10):
             + (np.triu(m, 1).sum() - p_away) ** 2
         )
 
-    res = minimize(loss, [1.4, 1.1], method="Nelder-Mead", options={"xatol": 1e-6})
-    return res.x
+    # Grobe Suche
+    best = (1e9, 1.4, 1.1)
+    for lh in np.arange(0.3, 4.1, 0.1):
+        for la in np.arange(0.3, 3.1, 0.1):
+            v = loss(lh, la)
+            if v < best[0]:
+                best = (v, lh, la)
+
+    # Feine Suche im besten Bereich
+    lh0, la0 = best[1], best[2]
+    for lh in np.arange(max(0.1, lh0 - 0.15), lh0 + 0.16, 0.01):
+        for la in np.arange(max(0.1, la0 - 0.15), la0 + 0.16, 0.01):
+            v = loss(lh, la)
+            if v < best[0]:
+                best = (v, lh, la)
+
+    return best[1], best[2]
 
 
 # ----- 3. Dixon-Coles Score-Matrix -----
@@ -82,8 +111,8 @@ def score_matrix(lh, la, max_goals=8, rho=-0.12):
     for i in range(max_goals + 1):
         for j in range(max_goals + 1):
             m[i, j] = (
-                poisson.pmf(i, lh)
-                * poisson.pmf(j, la)
+                _poisson_pmf(i, lh)
+                * _poisson_pmf(j, la)
                 * dc_correction(i, j, lh, la, rho)
             )
     return m / m.sum()
