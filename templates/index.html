@@ -3,167 +3,483 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>KickTipp WM 2026 — Tipps</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <title>KickTipp WM 2026</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg-base:    #0f172a;
-      --bg-card:    #1e293b;
-      --bg-dark:    #0b1220;
-      --border:     #334155;
-      --accent:     #2563eb;
-      --accent-2:   #22c55e;
-      --warn:       #f59e0b;
-      --muted:      #64748b;
-      --text:       #e2e8f0;
+      --bg:        #0a0f1e;
+      --bg-card:   #111827;
+      --bg-inner:  #0d1526;
+      --border:    #1e2d45;
+      --border-hi: #2563eb40;
+      --blue:      #2563eb;
+      --blue-dim:  #1e3a6e;
+      --green:     #22c55e;
+      --yellow:    #f59e0b;
+      --red:       #ef4444;
+      --text:      #e2e8f0;
+      --muted:     #64748b;
+      --muted2:    #94a3b8;
+      --ff-display:'Barlow Condensed', sans-serif;
+      --ff-body:   'Inter', system-ui, sans-serif;
     }
-    body          { background: var(--bg-base); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; }
-    .hero         { background: linear-gradient(135deg, #1a3560 0%, var(--bg-base) 100%); border-bottom: 2px solid var(--accent); }
-    .card-match   { background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px; transition: border-color .2s; }
-    .card-match:hover       { border-color: #4b6cb7; }
-    .card-match.close-call  { border-color: var(--warn); }
-    .tip-badge    { background: var(--accent); color: #fff; font-size: 1.5rem; font-weight: 700; letter-spacing: 2px; padding: .35em .7em; border-radius: 10px; display: inline-block; }
-    .ev-track     { background: var(--border); border-radius: 4px; height: 6px; width: 100%; }
-    .ev-fill      { background: var(--accent-2); border-radius: 4px; height: 6px; }
-    .odds-pill    { background: var(--bg-dark); border: 1px solid var(--border); border-radius: 8px; padding: 4px 10px; font-size: .82rem; white-space: nowrap; }
-    .odds-pill .val { font-weight: 700; color: #fff; }
-    .odds-pill .pct { color: var(--muted); font-size: .72rem; margin-left: 3px; }
-    .alt-chip     { background: #1a2740; border-radius: 5px; padding: 2px 8px; font-size: .75rem; color: #94a3b8; }
-    .warn-badge   { background: var(--warn); color: #1e293b; font-size: .68rem; font-weight: 700; border-radius: 4px; padding: 2px 7px; }
-    .date-label   { color: #60a5fa; font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; }
-    .summary-tbl  { background: var(--bg-card); border-radius: 12px; }
-    .summary-tbl thead th { color: #60a5fa; font-size: .75rem; text-transform: uppercase; letter-spacing: 1px; border: none; }
-    .summary-tbl td        { border-color: var(--border); vertical-align: middle; font-size: .85rem; }
-    .refresh-btn  { background: var(--accent); color: #fff; border-radius: 8px; padding: .35em 1.1em; text-decoration: none; font-size: .82rem; }
-    .refresh-btn:hover { background: #1d4ed8; color: #fff; }
-    .bm-count     { color: var(--muted); font-size: .7rem; }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--ff-body);
+      min-height: 100vh;
+    }
+
+    /* ── HEADER ─────────────────────────────── */
+    .header {
+      background: linear-gradient(160deg, #0f2040 0%, var(--bg) 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 1.25rem 0;
+    }
+    .header-inner {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 0 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .header-logo {
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+    }
+    .header-ball {
+      font-size: 2rem;
+      line-height: 1;
+    }
+    .header-title {
+      font-family: var(--ff-display);
+      font-weight: 800;
+      font-size: 1.6rem;
+      letter-spacing: .5px;
+      line-height: 1.1;
+    }
+    .header-sub {
+      font-size: .72rem;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+    .btn-refresh {
+      background: var(--blue);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: .45em 1.1em;
+      font-family: var(--ff-body);
+      font-size: .82rem;
+      font-weight: 500;
+      text-decoration: none;
+      cursor: pointer;
+      transition: background .15s;
+      white-space: nowrap;
+    }
+    .btn-refresh:hover { background: #1d4ed8; color: #fff; }
+
+    /* ── LAYOUT ─────────────────────────────── */
+    .main {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 1.5rem 1.25rem 4rem;
+    }
+
+    /* ── ERROR ──────────────────────────────── */
+    .error-box {
+      background: #2d0f0f;
+      border: 1px solid #7f1d1d;
+      border-radius: 10px;
+      padding: .9rem 1.1rem;
+      font-size: .83rem;
+      margin-bottom: 1.5rem;
+      color: #fca5a5;
+    }
+    .error-box strong { color: #f87171; }
+    .error-box code { background: #1a0a0a; border-radius: 4px; padding: 1px 5px; font-size: .8rem; }
+
+    /* ── EMPTY ──────────────────────────────── */
+    .empty {
+      text-align: center;
+      padding: 5rem 1rem;
+      color: var(--muted);
+    }
+    .empty-icon { font-size: 3.5rem; margin-bottom: 1rem; }
+
+    /* ── SUMMARY TABLE ──────────────────────── */
+    .summary {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1rem 1.25rem;
+      margin-bottom: 2rem;
+    }
+    .summary-label {
+      font-size: .65rem;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      margin-bottom: .75rem;
+    }
+    .summary table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .82rem;
+    }
+    .summary th {
+      font-size: .65rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--blue);
+      padding: 0 .5rem .5rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+    .summary td {
+      padding: .55rem .5rem;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+    .summary tr:last-child td { border-bottom: none; }
+    .summary .tip-cell {
+      font-family: var(--ff-display);
+      font-weight: 700;
+      font-size: 1rem;
+      letter-spacing: 1px;
+      color: #fff;
+    }
+    .summary .ev-cell { color: var(--green); font-weight: 600; }
+    .summary .date-cell { color: var(--muted2); white-space: nowrap; }
+
+    /* ── DATE HEADER ────────────────────────── */
+    .date-header {
+      font-size: .68rem;
+      font-weight: 700;
+      color: var(--blue);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin: 1.75rem 0 .75rem;
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+    }
+    .date-header::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* ── MATCH CARD ─────────────────────────── */
+    .match-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      margin-bottom: .85rem;
+      overflow: hidden;
+      transition: border-color .2s, transform .15s;
+    }
+    .match-card:hover {
+      border-color: var(--border-hi);
+      transform: translateY(-1px);
+    }
+    .match-card.close-call { border-color: #78350f80; }
+
+    /* top bar */
+    .card-topbar {
+      background: var(--bg-inner);
+      border-bottom: 1px solid var(--border);
+      padding: .45rem 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: .5rem;
+    }
+    .card-time {
+      font-size: .75rem;
+      color: var(--muted2);
+      font-weight: 500;
+    }
+    .close-badge {
+      background: #78350f;
+      color: #fcd34d;
+      font-size: .65rem;
+      font-weight: 700;
+      letter-spacing: .5px;
+      border-radius: 5px;
+      padding: 2px 7px;
+    }
+
+    /* scoreboard */
+    .scoreboard {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      gap: 1rem;
+      padding: 1.2rem 1.25rem .9rem;
+    }
+    .team {
+      display: flex;
+      flex-direction: column;
+      gap: .2rem;
+    }
+    .team.home { align-items: flex-end; text-align: right; }
+    .team.away { align-items: flex-start; text-align: left; }
+    .team-name {
+      font-family: var(--ff-display);
+      font-weight: 700;
+      font-size: 1.25rem;
+      letter-spacing: .3px;
+      line-height: 1.1;
+    }
+    .team-role {
+      font-size: .65rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .tip-center {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: .35rem;
+    }
+    .tip-score {
+      font-family: var(--ff-display);
+      font-weight: 800;
+      font-size: 2rem;
+      letter-spacing: 4px;
+      color: #fff;
+      background: var(--blue-dim);
+      border: 2px solid var(--blue);
+      border-radius: 10px;
+      padding: .15em .55em;
+      line-height: 1.15;
+    }
+    .ev-badge {
+      font-size: .7rem;
+      font-weight: 600;
+      border-radius: 5px;
+      padding: 2px 8px;
+      letter-spacing: .5px;
+    }
+    .ev-high  { background: #14532d; color: #86efac; }
+    .ev-mid   { background: #1e3a5f; color: #93c5fd; }
+    .ev-low   { background: #1c1917; color: var(--muted2); }
+
+    /* card footer */
+    .card-footer {
+      border-top: 1px solid var(--border);
+      padding: .6rem 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: .5rem;
+    }
+    .odds-row {
+      display: flex;
+      gap: .5rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .odds-pill {
+      background: var(--bg-inner);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      padding: 3px 9px;
+      font-size: .76rem;
+      white-space: nowrap;
+    }
+    .odds-pill .lbl { color: var(--muted); margin-right: 3px; }
+    .odds-pill .val { font-weight: 600; color: #fff; }
+    .odds-pill .pct { color: var(--muted); font-size: .68rem; margin-left: 2px; }
+    .bm-count { font-size: .68rem; color: var(--muted); }
+
+    .alts {
+      display: flex;
+      align-items: center;
+      gap: .35rem;
+      flex-wrap: wrap;
+    }
+    .alts-label { font-size: .68rem; color: var(--muted); }
+    .alt-chip {
+      background: var(--bg-inner);
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      padding: 2px 7px;
+      font-size: .72rem;
+      color: var(--muted2);
+      font-family: var(--ff-display);
+      font-weight: 600;
+      letter-spacing: .5px;
+    }
+    .alt-chip .alt-ev { color: var(--muted); font-size: .65rem; margin-left: 3px; font-family: var(--ff-body); font-weight: 400; }
+
+    /* ── FOOTER ─────────────────────────────── */
+    .page-footer {
+      text-align: center;
+      font-size: .68rem;
+      color: var(--muted);
+      padding: 1.5rem 0;
+      border-top: 1px solid var(--border);
+      margin-top: 2rem;
+    }
+
+    /* ── RESPONSIVE ─────────────────────────── */
+    @media (max-width: 480px) {
+      .team-name { font-size: 1rem; }
+      .tip-score { font-size: 1.6rem; letter-spacing: 2px; }
+      .scoreboard { gap: .5rem; padding: .9rem .9rem .7rem; }
+      .card-footer { padding: .6rem .9rem; }
+      .summary { padding: .8rem .9rem; }
+    }
   </style>
 </head>
 <body>
 
-<!-- Hero -->
-<div class="hero py-3 mb-4">
-  <div class="container d-flex justify-content-between align-items-center flex-wrap gap-2">
-    <div>
-      <h1 class="mb-0 fw-bold" style="font-size:1.5rem;">&#9917; KickTipp WM 2026</h1>
-      <div style="color:var(--muted); font-size:.76rem;">
-        EV-optimale Tipps &mdash; aktualisiert: {{ updated }}
-        {% if cache_ttl_min %}&nbsp;&middot;&nbsp;Cache {{ cache_ttl_min }} Min.{% endif %}
+<header class="header">
+  <div class="header-inner">
+    <div class="header-logo">
+      <div class="header-ball">&#9917;</div>
+      <div>
+        <div class="header-title">KickTipp WM 2026</div>
+        <div class="header-sub">EV-optimale Tipps &nbsp;&middot;&nbsp; aktualisiert: {{ updated }} &nbsp;&middot;&nbsp; Cache {{ cache_ttl_min }} Min.</div>
       </div>
     </div>
-    <a href="/refresh" class="refresh-btn">&#8635; Aktualisieren</a>
+    <a href="/refresh" class="btn-refresh">&#8635;&nbsp; Aktualisieren</a>
   </div>
-</div>
+</header>
 
-<div class="container pb-5">
+<main class="main">
 
-  <!-- Error Banner -->
   {% if error %}
-  <div class="alert alert-danger d-flex gap-2 align-items-start mb-4" style="font-size:.85rem;">
-    <span>&#9888;&#65039;</span>
-    <div>
-      <strong>Fehler:</strong> {{ error }}<br>
-      <span style="color:#ccc;">Sport-Key: <code>soccer_fifa_world_cup</code> &mdash; Umgebungsvariable <code>ODDS_API_KEY</code> pr&uuml;fen.</span>
-    </div>
+  <div class="error-box">
+    <strong>Fehler:</strong> {{ error }}<br>
+    <span>Umgebungsvariable <code>ODDS_API_KEY</code> pr&uuml;fen &nbsp;&middot;&nbsp; Sport-Key: <code>soccer_fifa_world_cup</code></span>
   </div>
   {% endif %}
 
   {% if not tips %}
-  <!-- Empty State -->
-  <div class="text-center py-5" style="color:var(--muted);">
-    <div style="font-size:3.5rem;">&#128197;</div>
-    <p class="mt-3">Keine anstehenden Spiele gefunden.<br>
-    Das Turnier hat m&ouml;glicherweise noch nicht begonnen oder Quoten sind noch nicht verf&uuml;gbar.</p>
+  <div class="empty">
+    <div class="empty-icon">&#128197;</div>
+    <p>Keine anstehenden Spiele gefunden.<br>Das Turnier hat m&ouml;glicherweise noch nicht begonnen<br>oder Quoten sind noch nicht verf&uuml;gbar.</p>
   </div>
 
   {% else %}
 
-  <!-- Summary Table -->
-  <div class="summary-tbl p-3 mb-4">
-    <div style="font-size:.7rem; color:var(--muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:.75rem;">Alle Tipps im &Uuml;berblick</div>
-    <div class="table-responsive">
-      <table class="table table-sm mb-0" style="color:var(--text);">
-        <thead>
-          <tr>
-            <th>Spiel</th>
-            <th>Datum</th>
-            <th>Tipp</th>
-            <th>EV</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for t in tips %}
-          <tr>
-            <td>{{ t.home }} &mdash; {{ t.away }}</td>
-            <td style="white-space:nowrap; color:var(--muted);">{{ t.date }} {{ t.time }}</td>
-            <td><strong style="color:#fff; letter-spacing:1px;">{{ t.tip }}</strong></td>
-            <td style="color:var(--accent-2);">{{ t.ev }}</td>
-            <td>{% if t.close_call %}<span class="warn-badge">knapp</span>{% endif %}</td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
+  <!-- Summary -->
+  <div class="summary">
+    <div class="summary-label">Alle Tipps im &Uuml;berblick</div>
+    <table>
+      <thead>
+        <tr>
+          <th>Spiel</th>
+          <th>Datum</th>
+          <th>Tipp</th>
+          <th>EV</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for t in tips %}
+        <tr>
+          <td>{{ t.home }} &mdash; {{ t.away }}</td>
+          <td class="date-cell">{{ t.date }} {{ t.time }}</td>
+          <td class="tip-cell">{{ t.tip }}</td>
+          <td class="ev-cell">{{ t.ev }}</td>
+          <td>{% if t.close_call %}<span class="close-badge">knapp</span>{% endif %}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
   </div>
 
-  <!-- Match Cards (grouped by date) -->
+  <!-- Cards -->
   {% set ns = namespace(cur_date="") %}
   {% for t in tips %}
+
     {% if t.date != ns.cur_date %}
       {% set ns.cur_date = t.date %}
-      <div class="date-label mt-4 mb-2 px-1">{{ t.date }}</div>
+      <div class="date-header">{{ t.date }}</div>
     {% endif %}
 
-    <div class="card-match mb-3 p-3 {% if t.close_call %}close-call{% endif %}">
-      <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap">
+    {% if t.ev >= 2.5 %}
+      {% set ev_cls = "ev-high" %}
+      {% set ev_lbl = "EV " + t.ev|string %}
+    {% elif t.ev >= 2.2 %}
+      {% set ev_cls = "ev-mid" %}
+      {% set ev_lbl = "EV " + t.ev|string %}
+    {% else %}
+      {% set ev_cls = "ev-low" %}
+      {% set ev_lbl = "EV " + t.ev|string %}
+    {% endif %}
 
-        <!-- Left block -->
-        <div class="flex-grow-1" style="min-width:0;">
+    <div class="match-card {% if t.close_call %}close-call{% endif %}">
 
-          <!-- Title row -->
-          <div class="d-flex align-items-center gap-2 mb-2 flex-wrap">
-            <span class="fw-bold" style="font-size:1.05rem;">{{ t.home }} &mdash; {{ t.away }}</span>
-            <span style="color:var(--muted); font-size:.8rem;">{{ t.time }} Uhr</span>
-            {% if t.close_call %}
-              <span class="warn-badge">&#9888; knapp &mdash; Alternative pr&uuml;fen</span>
-            {% endif %}
-          </div>
-
-          <!-- Odds row -->
-          <div class="d-flex gap-2 flex-wrap mb-2">
-            <div class="odds-pill">1 <span class="val">{{ t.odds_1 }}</span><span class="pct">({{ t.implied_1 }})</span></div>
-            <div class="odds-pill">X <span class="val">{{ t.odds_x }}</span><span class="pct">({{ t.implied_x }})</span></div>
-            <div class="odds-pill">2 <span class="val">{{ t.odds_2 }}</span><span class="pct">({{ t.implied_2 }})</span></div>
-            <span class="bm-count align-self-center">{{ t.n_bookmakers }} Buchmacher</span>
-          </div>
-
-          <!-- Alternatives -->
-          <div class="d-flex gap-1 flex-wrap align-items-center">
-            <span style="font-size:.72rem; color:var(--muted);">Alternativen:</span>
-            {% for alt in t.top_tips[1:] %}
-              <span class="alt-chip">{{ alt.score }} <span style="color:#60a5fa;">{{ alt.ev }}</span></span>
-            {% endfor %}
-          </div>
-
+      <!-- Top bar -->
+      <div class="card-topbar">
+        <span class="card-time">{{ t.time }} Uhr</span>
+        <div style="display:flex; gap:.5rem; align-items:center;">
+          <span class="bm-count">{{ t.n_bookmakers }} Buchmacher</span>
+          {% if t.close_call %}
+          <span class="close-badge">&#9888; Knapp &mdash; Alternative pr&uuml;fen</span>
+          {% endif %}
         </div>
-
-        <!-- Right block: tip + EV bar -->
-        <div class="text-center flex-shrink-0" style="min-width:90px;">
-          <div class="tip-badge mb-1">{{ t.tip }}</div>
-          <div style="font-size:.7rem; color:var(--muted); margin-bottom:5px;">EV&nbsp;{{ t.ev }}</div>
-          <div class="ev-track"><div class="ev-fill" style="width:{{ t.ev_pct }}%;"></div></div>
-          <div style="font-size:.65rem; color:var(--muted); margin-top:2px;">{{ t.ev_pct }}% v. max.</div>
-        </div>
-
       </div>
+
+      <!-- Scoreboard -->
+      <div class="scoreboard">
+        <div class="team home">
+          <span class="team-name">{{ t.home }}</span>
+          <span class="team-role">Heim</span>
+        </div>
+        <div class="tip-center">
+          <div class="tip-score">{{ t.tip }}</div>
+          <span class="ev-badge {{ ev_cls }}">{{ ev_lbl }}</span>
+        </div>
+        <div class="team away">
+          <span class="team-name">{{ t.away }}</span>
+          <span class="team-role">Gast</span>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="card-footer">
+        <div class="odds-row">
+          <div class="odds-pill"><span class="lbl">1</span><span class="val">{{ t.odds_1 }}</span><span class="pct">({{ t.implied_1 }})</span></div>
+          <div class="odds-pill"><span class="lbl">X</span><span class="val">{{ t.odds_x }}</span><span class="pct">({{ t.implied_x }})</span></div>
+          <div class="odds-pill"><span class="lbl">2</span><span class="val">{{ t.odds_2 }}</span><span class="pct">({{ t.implied_2 }})</span></div>
+        </div>
+        <div class="alts">
+          <span class="alts-label">Alt.:</span>
+          {% for alt in t.top_tips[1:] %}
+          <span class="alt-chip">{{ alt.score }}<span class="alt-ev">{{ alt.ev }}</span></span>
+          {% endfor %}
+        </div>
+      </div>
+
     </div>
   {% endfor %}
 
   {% endif %}
 
-</div>
+</main>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<footer class="page-footer">
+  Quoten von the-odds-api.com &nbsp;&middot;&nbsp; Modell: Poisson + Dixon-Coles &nbsp;&middot;&nbsp; Kein Glücksspiel-Ratgeber
+</footer>
+
 </body>
 </html>
