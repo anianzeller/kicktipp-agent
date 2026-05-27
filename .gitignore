@@ -22,3 +22,9 @@ Thumbs.db
 # Secrets / local config
 .env
 *.local
+
+# Claude Code (machine-specific settings)
+.claude/
+
+# Redundant source copies
+*.py.txt
