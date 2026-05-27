@@ -1,4 +1,5 @@
 import os
+import json
 import time
 import requests
 from flask import Flask, render_template, redirect, url_for
@@ -233,6 +234,9 @@ def build_tips(raw_matches):
             "implied_1": f"{result['implied_probs']['1']:.0%}",
             "implied_x": f"{result['implied_probs']['X']:.0%}",
             "implied_2": f"{result['implied_probs']['2']:.0%}",
+            "imp1": round(result['implied_probs']['1'] * 100),
+            "impx": round(result['implied_probs']['X'] * 100),
+            "imp2": round(result['implied_probs']['2'] * 100),
             "n_bookmakers": len(home_odds_list),
         })
 
@@ -273,12 +277,50 @@ def format_updated(ts):
 @app.route("/")
 def index():
     tips, error = get_tips()
+
+    js_matches = [{
+        "date":     t["date"],
+        "kickoff":  t["time_de"],
+        "home":     t["home"],
+        "away":     t["away"],
+        "tip":      t["tip"],
+        "ev":       t["ev"],
+        "isClose":  t["close_call"],
+        "germany":  t["home"] == "Germany" or t["away"] == "Germany",
+        "venue":    t["stadium"],
+        "local":    t["time_local"],
+        "tz_approx": t["tz_approx"],
+        "bookies":  t["n_bookmakers"],
+        "q1":       t["odds_1"],
+        "qx":       t["odds_x"],
+        "q2":       t["odds_2"],
+        "q1p":      t["imp1"],
+        "qxp":      t["impx"],
+        "q2p":      t["imp2"],
+        "alts":     [{"tip": a["score"], "ev": a["ev"]} for a in t["top_tips"][1:]],
+    } for t in tips]
+
+    # Pre-computed stats for initial SSR values (JS will also compute them live)
+    total = len(tips)
+    avg_ev = f"{sum(t['ev'] for t in tips) / total:.2f}" if total else "—"
+    stat_high = sum(1 for t in tips if t["ev"] >= 2.0)
+    stat_close = sum(1 for t in tips if t["close_call"])
+    stat_ger = sum(1 for t in tips if t["home"] == "Germany" or t["away"] == "Germany")
+    avg_bookies = round(sum(t["n_bookmakers"] for t in tips) / total) if total else 0
+
     return render_template(
         "index.html",
         tips=tips,
+        tips_js=json.dumps(js_matches),
         error=error,
         updated=format_updated(_cache["ts"]),
         cache_ttl_min=CACHE_TTL // 60,
+        stat_total=total,
+        avg_ev=avg_ev,
+        stat_high=stat_high,
+        stat_close=stat_close,
+        stat_ger=stat_ger,
+        avg_bookies=avg_bookies,
     )
 
 

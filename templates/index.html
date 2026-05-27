@@ -1,473 +1,369 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>KickTipp WM 2026</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --bg:       #080d1a;
-      --bg-card:  #0f1724;
-      --bg-inner: #090e1c;
-      --border:   #1a2840;
-      --blue:     #3b82f6;
-      --blue-dim: #172554;
-      --gold:     #f59e0b;
-      --green:    #22c55e;
-      --text:     #e2e8f0;
-      --muted:    #4b6280;
-      --muted2:   #8ba0b8;
-      --ff-d: 'Barlow Condensed', sans-serif;
-      --ff-b: 'Inter', system-ui, sans-serif;
-    }
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KickTipp WM 2026 — EV-optimale Tipps</title>
+<meta name="description" content="EV-optimale Tipps für die Fußball-Weltmeisterschaft 2026 auf Basis von Buchmacherquoten, Poisson-Modell und Dixon-Coles.">
 
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: var(--ff-b);
-      background-image: radial-gradient(circle at 20% 50%, #0e1e3a18 0%, transparent 60%),
-                        radial-gradient(circle at 80% 20%, #1a2e5218 0%, transparent 50%);
-    }
-    body::before {
-      content: '';
-      display: block;
-      height: 3px;
-      background: linear-gradient(90deg, transparent 0%, var(--gold) 30%, #fcd34d 50%, var(--gold) 70%, transparent 100%);
-    }
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 
-    /* ── HEADER ──────────────────────────────── */
-    .header {
-      background: linear-gradient(170deg, #0d2247 0%, #0a1428 60%, var(--bg) 100%);
-      border-bottom: 1px solid var(--border);
-      padding: 1.4rem 0 1.2rem;
-    }
-    .header-inner {
-      max-width: 900px; margin: 0 auto; padding: 0 1.25rem;
-      display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;
-    }
-    .header-logo { display: flex; align-items: center; gap: .85rem; }
-    .header-ball { font-size: 2.2rem; filter: drop-shadow(0 0 8px #f59e0b80); }
-    .header-title {
-      font-family: var(--ff-d); font-weight: 800; font-size: 1.75rem; letter-spacing: .5px;
-      background: linear-gradient(135deg, #fff 40%, #93c5fd 100%);
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-    }
-    .header-sub { font-size: .72rem; color: var(--muted); margin-top: 3px; }
-    .btn-refresh {
-      background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-      color: #fff; border-radius: 9px; padding: .5em 1.2em;
-      font-size: .82rem; font-weight: 600; text-decoration: none;
-      box-shadow: 0 2px 12px rgba(37,99,235,.35);
-      transition: box-shadow .2s, transform .15s;
-    }
-    .btn-refresh:hover { box-shadow: 0 4px 20px rgba(37,99,235,.5); transform: translateY(-1px); color: #fff; }
-
-    /* ── LAYOUT ──────────────────────────────── */
-    .main { max-width: 900px; margin: 0 auto; padding: 1.75rem 1.25rem 5rem; }
-
-    /* ── ERROR ───────────────────────────────── */
-    .error-box { background: #2d0f0f; border: 1px solid #7f1d1d; border-radius: 10px; padding: .9rem 1.1rem; font-size: .83rem; margin-bottom: 1.5rem; color: #fca5a5; }
-    .error-box strong { color: #f87171; }
-    .error-box code { background: #1a0a0a; border-radius: 4px; padding: 1px 5px; font-size: .8rem; }
-
-    /* ── HOW IT WORKS ───────────────────────── */
-    .how-it-works {
-      background: linear-gradient(135deg, #0a1428 0%, #0d1e3a 100%);
-      border: 1px solid var(--border); border-radius: 16px;
-      margin: 1.5rem 0 0; padding: 0;
-      box-shadow: 0 4px 20px rgba(0,0,0,.3);
-      overflow: hidden;
-    }
-    .how-summary {
-      display: flex; align-items: center; gap: .6rem;
-      padding: .75rem 1.25rem; cursor: pointer; list-style: none;
-      font-size: .72rem; font-weight: 600; color: var(--muted2);
-      user-select: none;
-    }
-    .how-summary::-webkit-details-marker { display: none; }
-    .how-summary::before { content: '⚙️'; font-size: .9rem; }
-    .how-marker { margin-left: auto; font-size: .7rem; color: var(--muted); transition: transform .2s; }
-    details[open] .how-marker { transform: rotate(180deg); }
-    details[open] .how-summary { color: #93c5fd; border-bottom: 1px solid var(--border); }
-    .how-body {
-      display: grid; grid-template-columns: 1fr 1fr;
-      gap: .6rem 1.5rem; padding: 1rem 1.25rem 1.1rem;
-    }
-    .how-step { display: flex; gap: .55rem; align-items: flex-start; }
-    .how-num {
-      flex-shrink: 0; width: 20px; height: 20px; border-radius: 50%;
-      background: var(--blue-dim); border: 1px solid var(--blue);
-      color: var(--blue); font-size: .62rem; font-weight: 800;
-      display: flex; align-items: center; justify-content: center; margin-top: 1px;
-    }
-    .how-text { font-size: .72rem; line-height: 1.45; color: var(--muted2); }
-    .how-text strong { color: #e2e8f0; }
-    .how-note {
-      grid-column: 1 / -1; border-top: 1px solid var(--border);
-      padding-top: .7rem; font-size: .67rem; color: var(--muted);
-    }
-    @media (max-width: 520px) { .how-body { grid-template-columns: 1fr; } }
-
-    /* ── EMPTY ───────────────────────────────── */
-    .empty { text-align: center; padding: 5rem 1rem; color: var(--muted); }
-    .empty-icon { font-size: 3.5rem; margin-bottom: 1rem; }
-
-    /* ── SUMMARY ─────────────────────────────── */
-    .summary {
-      background: var(--bg-card); border: 1px solid var(--border);
-      border-radius: 16px; padding: 1rem 1.25rem; margin-bottom: 1.5rem;
-      box-shadow: 0 4px 24px rgba(0,0,0,.3);
-    }
-    .summary-label { font-size: .62rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 1.8px; margin-bottom: .8rem; }
-    .summary table { width: 100%; border-collapse: collapse; font-size: .82rem; }
-    .summary th { font-size: .62rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--blue); padding: 0 .5rem .55rem; text-align: left; border-bottom: 1px solid var(--border); }
-    .summary td { padding: .5rem .5rem; border-bottom: 1px solid #131f33; vertical-align: middle; }
-    .summary tbody tr:hover td { background: rgba(59,130,246,.04); }
-    .summary tr:last-child td { border-bottom: none; }
-    .s-tip { font-family: var(--ff-d); font-weight: 700; font-size: 1rem; letter-spacing: 1px; color: #fff; }
-    .s-de-badge { background: #3a2800; border: 1px solid var(--gold); color: var(--gold); font-size: .6rem; font-weight: 800; border-radius: 4px; padding: 1px 5px; margin-left: 5px; vertical-align: middle; letter-spacing: .5px; }
-    .s-ev { color: var(--green); font-weight: 600; }
-    .s-date { color: var(--muted2); white-space: nowrap; }
-    .close-badge { background: #78350f; color: #fcd34d; font-size: .62rem; font-weight: 700; border-radius: 4px; padding: 2px 7px; }
-
-    /* ── LEGENDE ─────────────────────────────── */
-    .legend {
-      background: var(--bg-card); border: 1px solid var(--border);
-      border-radius: 12px; padding: .7rem 1.1rem; margin-bottom: 1.75rem;
-      box-shadow: 0 2px 12px rgba(0,0,0,.25);
-    }
-    .legend summary {
-      font-size: .72rem; font-weight: 600; color: var(--muted2);
-      cursor: pointer; list-style: none; display: flex; align-items: center; gap: .4rem;
-    }
-    .legend summary::-webkit-details-marker { display: none; }
-    .legend summary::before { content: 'ℹ️'; font-size: .85rem; }
-    .legend[open] summary { color: var(--text); margin-bottom: .7rem; }
-    .legend-row { display: flex; flex-wrap: wrap; gap: .4rem 1.5rem; }
-    .legend-item { font-size: .72rem; color: var(--muted2); white-space: nowrap; }
-    .legend-item strong { color: #fff; }
-    .ev-dot { display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-right: 2px; vertical-align: middle; }
-
-    /* ── DATE HEADER ─────────────────────────── */
-    .date-header {
-      font-size: .66rem; font-weight: 700; color: var(--blue); text-transform: uppercase;
-      letter-spacing: 2px; margin: 1.75rem 0 .8rem;
-      display: flex; align-items: center; gap: .75rem;
-    }
-    .date-header::before { content: '📅'; font-size: .8rem; }
-    .date-header::after { content: ''; flex: 1; height: 1px; background: linear-gradient(90deg, var(--border) 0%, transparent 100%); }
-
-    /* ── MATCH CARD ──────────────────────────── */
-    .match-card {
-      background: var(--bg-card); border: 1px solid var(--border);
-      border-radius: 16px; margin-bottom: 1rem; overflow: hidden;
-      box-shadow: 0 6px 28px rgba(0,0,0,.4);
-      transition: box-shadow .25s, transform .2s, border-color .2s;
-      position: relative;
-    }
-    .match-card::before {
-      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
-      background: linear-gradient(90deg, transparent 0%, var(--blue) 40%, var(--blue) 60%, transparent 100%);
-      opacity: .6;
-    }
-    .match-card:hover { box-shadow: 0 10px 40px rgba(0,0,0,.5); transform: translateY(-2px); border-color: #2a3f60; }
-    .match-card.close-call::before { background: linear-gradient(90deg, transparent 0%, var(--gold) 40%, var(--gold) 60%, transparent 100%); opacity: .8; }
-    .match-card.close-call { border-color: #4a2e0a; }
-    .match-card.germany-game { border-color: #7a5800; box-shadow: 0 6px 28px rgba(0,0,0,.4), 0 0 0 1px #f59e0b30; }
-    .match-card.germany-game::before { background: linear-gradient(90deg, transparent 0%, #000 20%, #cc0000 50%, var(--gold) 80%, transparent 100%); opacity: .9; }
-    .de-badge { background: #3a2800; border: 1px solid var(--gold); color: var(--gold); font-size: .62rem; font-weight: 800; border-radius: 4px; padding: 2px 7px; letter-spacing: .5px; }
-
-    /* ── TOPBAR ──────────────────────────────── */
-    .card-topbar {
-      background: linear-gradient(90deg, #0a1428 0%, #0c1730 100%);
-      border-bottom: 1px solid var(--border);
-      padding: .45rem 1.1rem;
-      display: flex; align-items: center; justify-content: space-between; gap: .75rem; flex-wrap: wrap;
-    }
-    .topbar-left { display: flex; align-items: center; gap: .8rem; }
-    .card-time { font-size: .75rem; color: var(--muted2); display: flex; align-items: center; gap: .35rem; flex-wrap: wrap; }
-    .time-de { color: #fff; font-weight: 700; }
-    .time-sep { color: var(--muted); }
-    .time-local { color: var(--muted2); }
-    .time-label { font-size: .6rem; color: var(--muted); margin-left: 1px; }
-    .card-stadium { font-size: .7rem; color: var(--muted); display: flex; align-items: center; gap: .25rem; }
-    .card-stadium::before { content: '🏟'; font-size: .75rem; }
-    .topbar-right { display: flex; align-items: center; gap: .5rem; }
-    .bm-count { font-size: .67rem; color: var(--muted); }
-
-    /* ── SCOREBOARD ──────────────────────────── */
-    .scoreboard {
-      display: grid; grid-template-columns: 1fr auto 1fr;
-      align-items: center; gap: 1.25rem;
-      padding: 1.25rem 1.25rem 1rem;
-    }
-    .team { display: flex; flex-direction: column; gap: .3rem; }
-    .team.home { align-items: flex-end; text-align: right; }
-    .team.away { align-items: flex-start; text-align: left; }
-    .team-name { font-family: var(--ff-d); font-weight: 700; font-size: 1.3rem; letter-spacing: .3px; line-height: 1.1; }
-    .team-role { font-size: .6rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1.2px; }
-
-    /* ── TIP CENTER ──────────────────────────── */
-    .tip-center { display: flex; flex-direction: column; align-items: center; gap: .4rem; }
-    .tip-label { font-size: .6rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--blue); }
-    .tip-score {
-      font-family: var(--ff-d); font-weight: 800; font-size: 2.1rem;
-      letter-spacing: 5px; color: #fff;
-      background: linear-gradient(145deg, #1e3a72 0%, #132857 100%);
-      border: 2px solid #3b82f6; border-radius: 12px; padding: .2em .6em; line-height: 1.15;
-      box-shadow: 0 0 28px rgba(59,130,246,.3), inset 0 1px 0 rgba(255,255,255,.07);
-    }
-    .ev-badge { font-size: .7rem; font-weight: 700; border-radius: 6px; padding: 3px 10px; letter-spacing: .5px; }
-    .ev-high { background: #052e16; color: #86efac; border: 1px solid #166534; }
-    .ev-mid  { background: #0c1f47; color: #93c5fd; border: 1px solid #1e3a8a; }
-    .ev-low  { background: #141414; color: #64748b;  border: 1px solid #1e293b; }
-
-    /* ── CARD FOOTER ─────────────────────────── */
-    .card-footer {
-      border-top: 1px solid var(--border); background: #09101f;
-      padding: .6rem 1.25rem;
-      display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: .5rem;
-    }
-    .odds-row { display: flex; gap: .4rem; flex-wrap: wrap; align-items: center; }
-    .odds-pill {
-      background: linear-gradient(135deg, #0d1830 0%, #111f38 100%);
-      border: 1px solid #1e2e48; border-radius: 8px; padding: 4px 10px;
-      font-size: .76rem; white-space: nowrap; transition: border-color .15s;
-    }
-    .odds-pill:hover { border-color: #3b82f660; }
-    .odds-pill .lbl { color: var(--muted); margin-right: 3px; font-size: .68rem; }
-    .odds-pill .val { font-weight: 700; color: #fff; }
-    .odds-pill .pct { color: var(--muted); font-size: .67rem; margin-left: 2px; }
-    .alts { display: flex; align-items: center; gap: .35rem; flex-wrap: wrap; }
-    .alts-label { font-size: .67rem; color: var(--muted); }
-    .alt-chip {
-      background: #0d1830; border: 1px solid #1e2e48; border-radius: 6px; padding: 3px 8px;
-      font-size: .72rem; color: var(--muted2); font-family: var(--ff-d); font-weight: 600; letter-spacing: .5px;
-    }
-    .alt-ev { color: var(--muted); font-size: .63rem; margin-left: 3px; font-family: var(--ff-b); font-weight: 400; }
-
-    /* ── CLOSE-CALL SECTION ──────────────────── */
-    .close-alts {
-      border-top: 1px solid #4a2e0a; background: #120a00;
-      padding: .6rem 1.25rem;
-      display: flex; align-items: center; gap: .75rem; flex-wrap: wrap;
-    }
-    .close-alts-label { font-size: .67rem; font-weight: 700; color: var(--gold); white-space: nowrap; }
-    .close-alt-item {
-      display: flex; flex-direction: column; align-items: center;
-      background: #1e1000; border: 1px solid #78350f; border-radius: 10px;
-      padding: .35rem .75rem; min-width: 52px;
-    }
-    .close-alt-score { font-family: var(--ff-d); font-weight: 800; font-size: 1.15rem; letter-spacing: 3px; color: #fcd34d; line-height: 1.1; }
-    .close-alt-ev { font-size: .62rem; color: #a16207; margin-top: 1px; }
-
-    /* ── FOOTER ──────────────────────────────── */
-    .page-footer {
-      text-align: center; font-size: .67rem; color: var(--muted);
-      padding: 1.5rem 0; border-top: 1px solid var(--border); margin-top: 2rem;
-    }
-
-    @media (max-width: 520px) {
-      .team-name { font-size: 1rem; }
-      .tip-score { font-size: 1.6rem; letter-spacing: 3px; }
-      .scoreboard { gap: .5rem; padding: .9rem .9rem .75rem; }
-    }
-  </style>
+<link rel="stylesheet" href="/static/styles.css">
 </head>
 <body>
 
-<header class="header">
-  <div class="header-inner">
-    <div class="header-logo">
-      <div class="header-ball">&#9917;</div>
-      <div>
-        <div class="header-title">KickTipp WM 2026</div>
-        <div class="header-sub">von Anian &nbsp;&middot;&nbsp; EV-optimale Tipps &nbsp;&middot;&nbsp; aktualisiert: {{ updated }} &nbsp;&middot;&nbsp; Cache {{ cache_ttl_min }} Min.</div>
-      </div>
-    </div>
-    <a href="/refresh" class="btn-refresh">&#8635;&nbsp; Aktualisieren</a>
+<!-- =========================================================
+     Top strip — sticky utility nav
+     ========================================================= -->
+<div class="topstrip">
+  <div class="topstrip-inner">
+    <a href="#top" class="brand-mark">
+      <span class="glyph">K</span>
+      <span>KICKTIPP · WM 2026</span>
+    </a>
+    <span class="live">{{ updated }} MESZ</span>
+    <nav>
+      <a href="#methodik">Methodik</a>
+      <a href="#uebersicht">Übersicht</a>
+      <a href="#spiele">Spiele</a>
+      <a href="#statistik">Statistik</a>
+      <a href="#legende">Legende</a>
+    </nav>
   </div>
-</header>
-
-<div style="max-width:900px;margin:0 auto;padding:0 1.25rem;">
-  <details class="how-it-works">
-    <summary class="how-summary">Wie funktioniert die Berechnung?<span class="how-marker">▼</span></summary>
-    <div class="how-body">
-      <div class="how-step">
-        <div class="how-num">1</div>
-        <div class="how-text"><strong>Quoten → Wahrscheinlichkeiten</strong><br>
-          Buchmacher-Quoten (Ø mehrerer Anbieter) werden in vig-bereinigte Wahrscheinlichkeiten für Sieg 1, Unentschieden X und Sieg 2 umgerechnet.</div>
-      </div>
-      <div class="how-step">
-        <div class="how-num">2</div>
-        <div class="how-text"><strong>Poisson-Modell → erwartete Tore</strong><br>
-          Aus den 1X2-Wahrscheinlichkeiten werden per Gittersuche die erwarteten Toranzahlen (λ<sub>Heim</sub>, λ<sub>Gast</sub>) abgeleitet, die am besten zur Markteinschätzung passen.</div>
-      </div>
-      <div class="how-step">
-        <div class="how-num">3</div>
-        <div class="how-text"><strong>Dixon-Coles Score-Matrix</strong><br>
-          Für jedes mögliche Ergebnis (z.B. 0:0, 1:0, 2:1 …) wird die Eintreffwahrscheinlichkeit berechnet. Eine Korrektur nach Dixon-Coles justiert Niedrigtor-Ergebnisse (0:0, 1:0, 0:1, 1:1) realistischer.</div>
-      </div>
-      <div class="how-step">
-        <div class="how-num">4</div>
-        <div class="how-text"><strong>EV-Optimierung für KickTipp</strong><br>
-          Für jeden möglichen Tipp wird der <em>Expected Value</em> berechnet: EV = Σ P(Ergebnis) × KickTipp-Punkte. Punkteschema: exakt 4 Pkt · Tordifferenz 3 Pkt · Tendenz 2 Pkt · falsch 0 Pkt. Der Tipp mit höchstem EV gewinnt.</div>
-      </div>
-      <div class="how-note">
-        ⚠️&nbsp; Kein Wettratgeber. Das Modell kennt keine Verletzungen, Aufstellungen oder aktuelle Form — es spiegelt ausschließlich die Markteinschätzung der Buchmacher wider.
-      </div>
-    </div>
-  </details>
 </div>
 
-<main class="main">
+<!-- =========================================================
+     Masthead
+     ========================================================= -->
+<a id="top"></a>
+<section class="masthead">
+  <div class="wrap">
+    <div class="eyebrow" data-reveal>Vol. I · No. 26 · Ausgabe Mai 2026 · Gruppenphase</div>
 
-  {% if error %}
-  <div class="error-box">
-    <strong>Fehler:</strong> {{ error }}<br>
-    <span>Umgebungsvariable <code>ODDS_API_KEY</code> pr&uuml;fen &nbsp;&middot;&nbsp; Sport-Key: <code>soccer_fifa_world_cup</code></span>
+    <div class="masthead-grid" style="margin-top: 16px;">
+      <div>
+        <h1 data-reveal>
+          Der <em>EV-optimale</em><br>
+          Tippzettel.
+        </h1>
+        <p class="lede" data-reveal>
+          Ein quantitativer Vorschlag für jede Partie der WM 2026 — gewonnen aus Buchmacherquoten,
+          einem Poisson-Modell und Dixon-Coles-Korrektur, optimiert auf das
+          <strong>KickTipp-Punkteschema</strong>. Kein Glücksspielratgeber, sondern eine kalte,
+          datengetriebene zweite Meinung für deinen Tippschein.
+        </p>
+      </div>
+
+      <dl class="masthead-meta" data-reveal>
+        <dt>Autor</dt><dd>Anian Z.</dd>
+        <dt>Quelle</dt><dd>the-odds-api.com</dd>
+        <dt>Buchmacher</dt><dd>Ø {{ avg_bookies }} pro Spiel</dd>
+        <dt>Modell</dt><dd>Poisson + Dixon-Coles</dd>
+        <dt>Cache</dt><dd>{{ cache_ttl_min }} Min.</dd>
+        <dt>Stand</dt><dd id="updated">{{ updated }} MESZ</dd>
+        <dt></dt><dd class="refresh-btn" id="refresh">
+          <span class="spin">↻</span> Quoten neu laden
+        </dd>
+      </dl>
+    </div>
   </div>
-  {% endif %}
+</section>
 
-  {% if not tips %}
-  <div class="empty">
-    <div class="empty-icon">&#128197;</div>
-    <p>Keine anstehenden Spiele gefunden.<br>Das Turnier hat m&ouml;glicherweise noch nicht begonnen<br>oder Quoten sind noch nicht verf&uuml;gbar.</p>
+<!-- =========================================================
+     Stats strip
+     ========================================================= -->
+<section class="stats-strip" id="stats-strip">
+  <div>
+    <div class="label">Spiele analysiert</div>
+    <div class="value mono"><span id="stat-total">{{ stat_total }}</span></div>
+    <div class="sub">vollständige Gruppenphase</div>
   </div>
+  <div>
+    <div class="label">Ø Expected Value</div>
+    <div class="value mono"><span id="stat-avg-ev">{{ avg_ev }}</span></div>
+    <div class="sub">max. erreichbar 4.00 pro Spiel</div>
+  </div>
+  <div>
+    <div class="label">Hoch-EV (≥ 2.0)</div>
+    <div class="value mono"><span id="stat-high">{{ stat_high }}</span></div>
+    <div class="sub">Spiele mit klarem Favoriten</div>
+  </div>
+  <div>
+    <div class="label">Knappe Entscheidungen</div>
+    <div class="value mono"><span id="stat-close">{{ stat_close }}</span></div>
+    <div class="sub">Alternative prüfen</div>
+  </div>
+  <div>
+    <div class="label">Spiele · Deutschland</div>
+    <div class="value mono"><span id="stat-ger">{{ stat_ger }}</span></div>
+    <div class="sub">GRU · 14. · 20. · 25. Juni</div>
+  </div>
+</section>
 
-  {% else %}
+<!-- =========================================================
+     Methodology
+     ========================================================= -->
+<section class="section" id="methodik">
+  <div class="wrap">
+    <div class="section-head" data-reveal>
+      <div>
+        <span class="num">§ 01 · Methodik</span>
+        <h2>Wie der<br>Tipp entsteht.</h2>
+      </div>
+      <div class="deck">
+        Vier Schritte. Keine Bauchgefühle, keine Form-Tabellen, keine verletzten Stars —
+        nur die kollektive Markteinschätzung der Buchmacher, mathematisch destilliert.
+      </div>
+    </div>
 
-  <!-- Übersichtstabelle -->
-  <div class="summary">
-    <div class="summary-label">Alle Tipps im &Uuml;berblick</div>
-    <div style="overflow-x:auto;">
-      <table>
+    <div class="method-grid">
+      <article class="method-card" data-reveal>
+        <div class="step">01</div>
+        <h3>Quoten → Wahrscheinlichkeiten</h3>
+        <p>Die durchschnittlichen 1X2-Quoten mehrerer Buchmacher werden um den Buchmacher-Vig (overround) bereinigt und in echte Wahrscheinlichkeiten für Heimsieg, Unentschieden und Auswärtssieg umgerechnet.</p>
+        <span class="formula">p<sub>i</sub> = (1/o<sub>i</sub>) / Σ(1/o<sub>j</sub>)</span>
+      </article>
+
+      <article class="method-card" data-reveal>
+        <div class="step">02</div>
+        <h3>Poisson-Modell</h3>
+        <p>Aus den 1X2-Wahrscheinlichkeiten leiten wir per Gittersuche die erwarteten Toranzahlen λ<sub>Heim</sub> und λ<sub>Gast</sub> ab, die am besten zur Markteinschätzung passen.</p>
+        <span class="formula">argmin Σ |p̂ − p|²</span>
+      </article>
+
+      <article class="method-card" data-reveal>
+        <div class="step">03</div>
+        <h3>Dixon-Coles-Matrix</h3>
+        <p>Für jedes mögliche Ergebnis wird die Eintreffwahrscheinlichkeit berechnet. Eine Dixon-Coles-Korrektur justiert Niedrigtor-Ergebnisse (0:0, 1:0, 0:1, 1:1) realistischer als reines Poisson.</p>
+        <span class="formula">τ(x, y, λ, μ) · P(x) · P(y)</span>
+      </article>
+
+      <article class="method-card" data-reveal>
+        <div class="step">04</div>
+        <h3>EV-Optimierung</h3>
+        <p>Für jeden möglichen Tipp berechnen wir den Expected Value mit dem KickTipp-Schema: exakt = 4 Pkt, Tordifferenz = 3 Pkt, Tendenz = 2 Pkt, falsch = 0. Der Tipp mit dem höchsten EV gewinnt.</p>
+        <span class="formula">EV = Σ P(R) · Punkte(R, T)</span>
+      </article>
+    </div>
+
+    <div class="disclaimer" data-reveal>
+      <strong>Kein Wettratgeber.</strong> Das Modell kennt keine Verletzungen, Aufstellungen oder aktuelle Form
+      — es spiegelt ausschließlich die Markteinschätzung der Buchmacher wider. Optimiert wird
+      ausschließlich auf das KickTipp-Punkteschema, nicht auf Wettrendite.
+    </div>
+  </div>
+</section>
+
+<!-- =========================================================
+     Übersicht — table
+     ========================================================= -->
+<section class="section" id="uebersicht">
+  <div class="wrap">
+    <div class="section-head" data-reveal>
+      <div>
+        <span class="num">§ 02 · Übersicht</span>
+        <h2>Alle Tipps<br>im Sekundenblick.</h2>
+      </div>
+      <div class="deck">
+        Die kompakte Tabelle für den schnellen Übertrag in den Tippschein. Sortierbar nach
+        Datum, EV oder Knappheit. <span class="mono">⚠</span> markiert Spiele mit dichten Alternativen.
+      </div>
+    </div>
+
+    <div class="summary-wrap">
+      <table class="summary-table" id="summary-table">
         <thead>
-          <tr><th>Spiel</th><th>Datum &amp; Zeit (MESZ)</th><th>Tipp</th><th>EV</th><th></th></tr>
-        </thead>
-        <tbody>
-          {% for t in tips %}
-          <tr{% if t.home == 'Germany' or t.away == 'Germany' %} style="background:rgba(245,158,11,.06);"{% endif %}>
-            <td>{{ t.home }} &mdash; {{ t.away }}{% if t.home == 'Germany' or t.away == 'Germany' %}<span class="s-de-badge">DE</span>{% endif %}</td>
-            <td class="s-date">{{ t.date }}&nbsp; {{ t.time_de }}</td>
-            <td class="s-tip">{{ t.tip }}</td>
-            <td class="s-ev">{{ t.ev }}</td>
-            <td>{% if t.close_call %}<span class="close-badge">knapp</span>{% endif %}</td>
+          <tr>
+            <th>Datum</th>
+            <th>Anstoß</th>
+            <th>Begegnung</th>
+            <th>Tipp</th>
+            <th class="num">EV</th>
+            <th class="num">Heim %</th>
+            <th class="num">X %</th>
+            <th class="num">Gast %</th>
+            <th>Hinweis</th>
           </tr>
-          {% endfor %}
-        </tbody>
+        </thead>
+        <tbody><!-- populated by app.js --></tbody>
       </table>
     </div>
   </div>
+</section>
 
-  <!-- Legende -->
-  <details class="legend" open>
-    <summary>Legende</summary>
-    <div class="legend-row">
-      <div class="legend-item"><strong>1 / X / 2</strong> &mdash; Quote Heim&nbsp;/ Unentschieden&nbsp;/ Ausw&auml;rts</div>
-      <div class="legend-item"><strong>(57&nbsp;%)</strong> &mdash; Wahrscheinlichkeit laut Buchmachern</div>
+<!-- =========================================================
+     Statistik — EV histogram
+     ========================================================= -->
+<section class="section" id="statistik">
+  <div class="wrap">
+    <div class="section-head" data-reveal>
+      <div>
+        <span class="num">§ 03 · Verteilung</span>
+        <h2>EV-Landschaft<br>der Gruppenphase.</h2>
+      </div>
+      <div class="deck">
+        Wie viel Erwartungsnutzen steckt im Durchschnittsspiel? Die Verteilung zeigt:
+        Die meisten Begegnungen liegen zwischen 1.2 und 1.7 EV — Hoch-EV-Spiele
+        (≥ 2.0) mit klar erkennbarem Favoriten sind die Ausnahme.
+      </div>
+    </div>
+
+    <div class="chart" data-reveal>
+      <div class="chart-head">
+        <h3>EV-Histogramm · alle {{ stat_total }} Spiele</h3>
+        <div class="legend-mini">
+          <span class="high">≥ 2.0 Hoch-EV</span>
+          <span class="mid">1.2 – 2.0 Standard</span>
+          <span class="low">&lt; 1.2 schwach</span>
+        </div>
+      </div>
+      <div class="histogram" id="histogram"></div>
+      <div class="histogram-axis">
+        <span>0.90</span><span>1.10</span><span>1.30</span><span>1.50</span>
+        <span>1.70</span><span>1.90</span><span>2.10</span><span>2.30</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =========================================================
+     Spiele — match cards by day
+     ========================================================= -->
+<section class="section" id="spiele">
+  <div class="wrap">
+    <div class="section-head" data-reveal>
+      <div>
+        <span class="num">§ 04 · Spielplan</span>
+        <h2>Jede Partie.<br>Im Detail.</h2>
+      </div>
+      <div class="deck">
+        {{ stat_total }} Karten, gruppiert nach Spieltag. Jede Karte zeigt den EV-optimalen Tipp,
+        die wichtigsten Alternativen, die Buchmacherquoten und das Stadion.
+      </div>
+    </div>
+
+    <div class="filter-bar" data-reveal>
+      <label class="search">
+        <span class="icon mono">⌕</span>
+        <input id="search" type="text" placeholder="Mannschaft suchen (z. B. Germany, Brazil, …)">
+      </label>
+      <div class="chips" id="chips">
+        <button class="chip active" data-filter="all">Alle <span class="count">{{ stat_total }}</span></button>
+        <button class="chip" data-filter="high">Hoch-EV <span class="count">{{ stat_high }}</span></button>
+        <button class="chip" data-filter="close">Knapp <span class="count">{{ stat_close }}</span></button>
+        <button class="chip" data-filter="ger">Deutschland <span class="count">{{ stat_ger }}</span></button>
+      </div>
+      <select class="sort-select" id="sort">
+        <option value="date">↓ nach Datum</option>
+        <option value="ev-desc">↓ nach EV</option>
+        <option value="ev-asc">↑ nach EV</option>
+      </select>
+    </div>
+
+    <div id="match-list"><!-- populated by app.js --></div>
+  </div>
+</section>
+
+<!-- =========================================================
+     Legende
+     ========================================================= -->
+<section class="section" id="legende">
+  <div class="wrap">
+    <div class="section-head" data-reveal>
+      <div>
+        <span class="num">§ 05 · Legende</span>
+        <h2>Was bedeutet was?</h2>
+      </div>
+    </div>
+
+    <div class="legend">
       <div class="legend-item">
-        <strong>EV</strong> &mdash; Erwartete KickTipp-Punkte (max.&nbsp;4) &nbsp;
-        <span class="ev-dot" style="background:#166534"></span>&nbsp;&ge;&nbsp;2,5 &nbsp;
-        <span class="ev-dot" style="background:#1e3a8a"></span>&nbsp;&ge;&nbsp;2,2 &nbsp;
-        <span class="ev-dot" style="background:#1e293b;border:1px solid #334155"></span>&nbsp;&lt;&nbsp;2,2
+        <h4>1 / X / 2</h4>
+        <p>Buchmacherquote für Heimsieg, Unentschieden und Auswärtssieg, daneben die vig-bereinigte Wahrscheinlichkeit in Prozent.</p>
       </div>
-      <div class="legend-item"><strong>Alt.</strong> &mdash; N&auml;chstbeste Tipps &middot; <strong style="color:#fcd34d">knapp</strong> = zwei Tipps fast gleichauf</div>
+      <div class="legend-item">
+        <h4>Tipp</h4>
+        <p>Das nach Expected Value optimale Ergebnis. KickTipp belohnt exakte Treffer mit 4, Tordifferenz mit 3 und Tendenz mit 2 Punkten.</p>
+      </div>
+      <div class="legend-item">
+        <h4>EV-Skala</h4>
+        <p>Erwartete KickTipp-Punkte pro Spiel.</p>
+        <div class="legend-swatches">
+          <span class="legend-swatch high">≥ 2.0</span>
+          <span class="legend-swatch mid">≥ 1.4</span>
+          <span class="legend-swatch low">&lt; 1.4</span>
+        </div>
+      </div>
+      <div class="legend-item">
+        <h4>Knapp</h4>
+        <p>Zwei oder mehr Tipps liegen im EV nah beieinander — die Alternativen unten in der Karte lohnen einen zweiten Blick.</p>
+      </div>
     </div>
-  </details>
+  </div>
+</section>
 
-  <!-- Match-Karten -->
-  {% set ns = namespace(cur_date="") %}
-  {% for t in tips %}
+<!-- =========================================================
+     Footer
+     ========================================================= -->
+<footer>
+  <div class="wrap">
+    <h2>Tippen mit<br><em>Daten</em>. Nicht mit Bauch.</h2>
+    <p style="max-width: 540px;">
+      Dieser Agent läuft selbstständig im Hintergrund, lädt alle {{ cache_ttl_min }} Minuten frische Quoten von
+      mehreren Buchmachern und rechnet das EV-optimale Ergebnis für jede WM-Partie aus.
+      Kostenlos, ohne Tracking, Open Source.
+    </p>
 
-    {% if t.date != ns.cur_date %}
-      {% set ns.cur_date = t.date %}
-      <div class="date-header">{{ t.date }}</div>
-    {% endif %}
-
-    {% set is_de = t.home == 'Germany' or t.away == 'Germany' %}
-    <div class="match-card {% if t.close_call %}close-call{% endif %}{% if is_de %} germany-game{% endif %}">
-
-      <div class="card-topbar">
-        <div class="topbar-left">
-          <span class="card-time">
-            <span class="time-de">{{ t.time_de }}<span class="time-label"> MESZ</span></span>
-            <span class="time-sep">/</span>
-            <span class="time-local">{% if t.tz_approx %}~{% endif %}{{ t.time_local }}<span class="time-label"> Ortszeit</span></span>
-          </span>
-          {% if t.stadium %}<span class="card-stadium">{{ t.stadium }}</span>{% endif %}
-        </div>
-        <div class="topbar-right">
-          {% if is_de %}<span class="de-badge">Deutschland</span>{% endif %}
-          <span class="bm-count">{{ t.n_bookmakers }} Buchmacher</span>
-          {% if t.close_call %}<span class="close-badge">&#9888; Alternative pr&uuml;fen</span>{% endif %}
-        </div>
+    <div class="foot-grid">
+      <div>
+        <h4>Daten</h4>
+        <p>Quoten via the-odds-api.com · Modell: Poisson + Dixon-Coles · Punkteschema: 4 / 3 / 2 / 0</p>
       </div>
-
-      <div class="scoreboard">
-        <div class="team home">
-          <span class="team-name">{{ t.home }}</span>
-          <span class="team-role">Heim</span>
-        </div>
-        <div class="tip-center">
-          <div class="tip-label">Tipp</div>
-          <div class="tip-score">{{ t.tip }}</div>
-          {% if t.ev >= 2.5 %}
-            <span class="ev-badge ev-high">EV {{ t.ev }}</span>
-          {% elif t.ev >= 2.2 %}
-            <span class="ev-badge ev-mid">EV {{ t.ev }}</span>
-          {% else %}
-            <span class="ev-badge ev-low">EV {{ t.ev }}</span>
-          {% endif %}
-        </div>
-        <div class="team away">
-          <span class="team-name">{{ t.away }}</span>
-          <span class="team-role">Gast</span>
-        </div>
+      <div>
+        <h4>Quellcode</h4>
+        <p><a href="https://kicktipp-agent.onrender.com/">kicktipp-agent.onrender.com</a><br>Stack: Python · Flask · gehostet auf Render</p>
       </div>
-
-      {% if t.close_call %}
-      <div class="close-alts">
-        <span class="close-alts-label">⚠️ Knapp &mdash; auch m&ouml;glich:</span>
-        {% for alt in t.top_tips[1:] %}
-        <div class="close-alt-item">
-          <span class="close-alt-score">{{ alt.score }}</span>
-          <span class="close-alt-ev">EV {{ alt.ev }}</span>
-        </div>
-        {% endfor %}
+      <div>
+        <h4>Haftung</h4>
+        <p>Kein Glücksspielratgeber. Optimierung erfolgt ausschließlich auf das KickTipp-Punkteschema.</p>
       </div>
-      {% endif %}
-
-      <div class="card-footer">
-        <div class="odds-row">
-          <div class="odds-pill"><span class="lbl">1</span><span class="val">{{ t.odds_1 }}</span><span class="pct">({{ t.implied_1 }})</span></div>
-          <div class="odds-pill"><span class="lbl">X</span><span class="val">{{ t.odds_x }}</span><span class="pct">({{ t.implied_x }})</span></div>
-          <div class="odds-pill"><span class="lbl">2</span><span class="val">{{ t.odds_2 }}</span><span class="pct">({{ t.implied_2 }})</span></div>
-        </div>
-        {% if not t.close_call %}
-        <div class="alts">
-          <span class="alts-label">Alt.:</span>
-          {% for alt in t.top_tips[1:] %}
-          <span class="alt-chip">{{ alt.score }}<span class="alt-ev">{{ alt.ev }}</span></span>
-          {% endfor %}
-        </div>
-        {% endif %}
-      </div>
-
     </div>
-  {% endfor %}
 
-  {% endif %}
-
-</main>
-
-<footer class="page-footer">
-  Quoten: the-odds-api.com &nbsp;&middot;&nbsp; Modell: Poisson + Dixon-Coles &nbsp;&middot;&nbsp; Kein Gl&uuml;cksspiel-Ratgeber
+    <div class="credit">
+      © 2026 ANIAN · Stand {{ updated }} · v2.0 · MADE IN MUC
+    </div>
+  </div>
 </footer>
+
+<!-- =========================================================
+     Data injection + app bootstrap
+     ========================================================= -->
+<script>
+window.MATCHES = {{ tips_js | safe }};
+window.COUNTRY_CODES = {
+  "Mexico": "MEX", "South Africa": "RSA", "South Korea": "KOR", "Czech Republic": "CZE",
+  "Canada": "CAN", "Bosnia & Herzegovina": "BIH", "Qatar": "QAT", "Switzerland": "SUI",
+  "Brazil": "BRA", "Morocco": "MAR", "Haiti": "HAI", "Scotland": "SCO",
+  "USA": "USA", "Paraguay": "PAR", "Australia": "AUS", "Turkey": "TUR",
+  "Ivory Coast": "CIV", "Ecuador": "ECU", "Germany": "GER", "Curaçao": "CUW",
+  "Netherlands": "NED", "Japan": "JPN", "Sweden": "SWE", "Tunisia": "TUN",
+  "Saudi Arabia": "KSA", "Uruguay": "URU", "Spain": "ESP", "Cape Verde": "CPV",
+  "Belgium": "BEL", "Egypt": "EGY", "New Zealand": "NZL", "Iran": "IRN",
+  "Iraq": "IRQ", "Norway": "NOR", "France": "FRA", "Senegal": "SEN",
+  "Ghana": "GHA", "Panama": "PAN", "England": "ENG", "Croatia": "CRO",
+  "Argentina": "ARG", "Algeria": "ALG", "Austria": "AUT", "Jordan": "JOR",
+  "Portugal": "POR", "DR Congo": "COD", "Uzbekistan": "UZB", "Colombia": "COL",
+  "United States": "USA", "Bosnia and Herzegovina": "BIH"
+};
+window.META = {
+  updated: "{{ updated }} MESZ",
+  cacheTtl: {{ cache_ttl_min }},
+  error: {{ error | tojson | safe }}
+};
+</script>
+<script src="/static/app.js"></script>
 
 </body>
 </html>
