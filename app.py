@@ -23,7 +23,8 @@ FLAGS = {
     "Hungary": "🇭🇺", "Scotland": "🏴󠁧󠁢󠁳󠁣󠁴󠁿", "Slovakia": "🇸🇰", "Romania": "🇷🇴",
     "Greece": "🇬🇷", "Albania": "🇦🇱", "Slovenia": "🇸🇮", "Iceland": "🇮🇸",
     "Norway": "🇳🇴", "Sweden": "🇸🇪", "Finland": "🇫🇮", "Wales": "🏴󠁧󠁢󠁷󠁬󠁳󠁿",
-    "North Macedonia": "🇲🇰", "Bosnia and Herzegovina": "🇧🇦", "Kosovo": "🇽🇰",
+    "North Macedonia": "🇲🇰", "Bosnia and Herzegovina": "🇧🇦",
+    "Bosnia & Herzegovina": "🇧🇦", "Kosovo": "🇽🇰",
     # Americas
     "Brazil": "🇧🇷", "Argentina": "🇦🇷", "Colombia": "🇨🇴", "Uruguay": "🇺🇾",
     "Ecuador": "🇪🇨", "Chile": "🇨🇱", "Paraguay": "🇵🇾", "Peru": "🇵🇪",
@@ -31,6 +32,7 @@ FLAGS = {
     "USA": "🇺🇸", "Canada": "🇨🇦", "Costa Rica": "🇨🇷", "Honduras": "🇭🇳",
     "Panama": "🇵🇦", "Jamaica": "🇯🇲", "El Salvador": "🇸🇻", "Guatemala": "🇬🇹",
     "Trinidad and Tobago": "🇹🇹", "Haiti": "🇭🇹", "Cuba": "🇨🇺",
+    "Curaçao": "🇨🇼",
     # Afrika
     "Nigeria": "🇳🇬", "South Africa": "🇿🇦", "Morocco": "🇲🇦", "Senegal": "🇸🇳",
     "Egypt": "🇪🇬", "Cameroon": "🇨🇲", "Ghana": "🇬🇭", "Ivory Coast": "🇨🇮",

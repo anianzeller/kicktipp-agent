@@ -74,6 +74,44 @@
     .error-box strong { color: #f87171; }
     .error-box code { background: #1a0a0a; border-radius: 4px; padding: 1px 5px; font-size: .8rem; }
 
+    /* ── HOW IT WORKS ───────────────────────── */
+    .how-it-works {
+      background: linear-gradient(135deg, #0a1428 0%, #0d1e3a 100%);
+      border: 1px solid var(--border); border-radius: 16px;
+      margin: 1.5rem 0 0; padding: 0;
+      box-shadow: 0 4px 20px rgba(0,0,0,.3);
+      overflow: hidden;
+    }
+    .how-summary {
+      display: flex; align-items: center; gap: .6rem;
+      padding: .75rem 1.25rem; cursor: pointer; list-style: none;
+      font-size: .72rem; font-weight: 600; color: var(--muted2);
+      user-select: none;
+    }
+    .how-summary::-webkit-details-marker { display: none; }
+    .how-summary::before { content: '⚙️'; font-size: .9rem; }
+    .how-marker { margin-left: auto; font-size: .7rem; color: var(--muted); transition: transform .2s; }
+    details[open] .how-marker { transform: rotate(180deg); }
+    details[open] .how-summary { color: #93c5fd; border-bottom: 1px solid var(--border); }
+    .how-body {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: .6rem 1.5rem; padding: 1rem 1.25rem 1.1rem;
+    }
+    .how-step { display: flex; gap: .55rem; align-items: flex-start; }
+    .how-num {
+      flex-shrink: 0; width: 20px; height: 20px; border-radius: 50%;
+      background: var(--blue-dim); border: 1px solid var(--blue);
+      color: var(--blue); font-size: .62rem; font-weight: 800;
+      display: flex; align-items: center; justify-content: center; margin-top: 1px;
+    }
+    .how-text { font-size: .72rem; line-height: 1.45; color: var(--muted2); }
+    .how-text strong { color: #e2e8f0; }
+    .how-note {
+      grid-column: 1 / -1; border-top: 1px solid var(--border);
+      padding-top: .7rem; font-size: .67rem; color: var(--muted);
+    }
+    @media (max-width: 520px) { .how-body { grid-template-columns: 1fr; } }
+
     /* ── EMPTY ───────────────────────────────── */
     .empty { text-align: center; padding: 5rem 1rem; color: var(--muted); }
     .empty-icon { font-size: 3.5rem; margin-bottom: 1rem; }
@@ -240,6 +278,37 @@
     <a href="/refresh" class="btn-refresh">&#8635;&nbsp; Aktualisieren</a>
   </div>
 </header>
+
+<div style="max-width:900px;margin:0 auto;padding:0 1.25rem;">
+  <details class="how-it-works">
+    <summary class="how-summary">Wie funktioniert die Berechnung?<span class="how-marker">▼</span></summary>
+    <div class="how-body">
+      <div class="how-step">
+        <div class="how-num">1</div>
+        <div class="how-text"><strong>Quoten → Wahrscheinlichkeiten</strong><br>
+          Buchmacher-Quoten (Ø mehrerer Anbieter) werden in vig-bereinigte Wahrscheinlichkeiten für Sieg 1, Unentschieden X und Sieg 2 umgerechnet.</div>
+      </div>
+      <div class="how-step">
+        <div class="how-num">2</div>
+        <div class="how-text"><strong>Poisson-Modell → erwartete Tore</strong><br>
+          Aus den 1X2-Wahrscheinlichkeiten werden per Gittersuche die erwarteten Toranzahlen (λ<sub>Heim</sub>, λ<sub>Gast</sub>) abgeleitet, die am besten zur Markteinschätzung passen.</div>
+      </div>
+      <div class="how-step">
+        <div class="how-num">3</div>
+        <div class="how-text"><strong>Dixon-Coles Score-Matrix</strong><br>
+          Für jedes mögliche Ergebnis (z.B. 0:0, 1:0, 2:1 …) wird die Eintreffwahrscheinlichkeit berechnet. Eine Korrektur nach Dixon-Coles justiert Niedrigtor-Ergebnisse (0:0, 1:0, 0:1, 1:1) realistischer.</div>
+      </div>
+      <div class="how-step">
+        <div class="how-num">4</div>
+        <div class="how-text"><strong>EV-Optimierung für KickTipp</strong><br>
+          Für jeden möglichen Tipp wird der <em>Expected Value</em> berechnet: EV = Σ P(Ergebnis) × KickTipp-Punkte. Punkteschema: exakt 4 Pkt · Tordifferenz 3 Pkt · Tendenz 2 Pkt · falsch 0 Pkt. Der Tipp mit höchstem EV gewinnt.</div>
+      </div>
+      <div class="how-note">
+        ⚠️&nbsp; Kein Wettratgeber. Das Modell kennt keine Verletzungen, Aufstellungen oder aktuelle Form — es spiegelt ausschließlich die Markteinschätzung der Buchmacher wider.
+      </div>
+    </div>
+  </details>
+</div>
 
 <main class="main">
 
