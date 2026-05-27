@@ -278,31 +278,32 @@ def format_updated(ts):
 def index():
     tips, error = get_tips()
 
+    # Explicit native-Python casts so json.dumps handles numpy types correctly
     js_matches = [{
-        "date":     t["date"],
-        "kickoff":  t["time_de"],
-        "home":     t["home"],
-        "away":     t["away"],
-        "tip":      t["tip"],
-        "ev":       t["ev"],
-        "isClose":  t["close_call"],
-        "germany":  t["home"] == "Germany" or t["away"] == "Germany",
-        "venue":    t["stadium"],
-        "local":    t["time_local"],
-        "tz_approx": t["tz_approx"],
-        "bookies":  t["n_bookmakers"],
-        "q1":       t["odds_1"],
-        "qx":       t["odds_x"],
-        "q2":       t["odds_2"],
-        "q1p":      t["imp1"],
-        "qxp":      t["impx"],
-        "q2p":      t["imp2"],
-        "alts":     [{"tip": a["score"], "ev": a["ev"]} for a in t["top_tips"][1:]],
+        "date":      t["date"],
+        "kickoff":   t["time_de"],
+        "home":      t["home"],
+        "away":      t["away"],
+        "tip":       str(t["tip"]),
+        "ev":        float(t["ev"]),
+        "isClose":   bool(t["close_call"]),
+        "germany":   t["home"] == "Germany" or t["away"] == "Germany",
+        "venue":     t["stadium"],
+        "local":     t["time_local"],
+        "tz_approx": bool(t["tz_approx"]),
+        "bookies":   int(t["n_bookmakers"]),
+        "q1":        float(t["odds_1"]),
+        "qx":        float(t["odds_x"]),
+        "q2":        float(t["odds_2"]),
+        "q1p":       int(t["imp1"]),
+        "qxp":       int(t["impx"]),
+        "q2p":       int(t["imp2"]),
+        "alts":      [{"tip": str(a["score"]), "ev": float(a["ev"])} for a in t["top_tips"][1:]],
     } for t in tips]
 
     # Pre-computed stats for initial SSR values (JS will also compute them live)
     total = len(tips)
-    avg_ev = f"{sum(t['ev'] for t in tips) / total:.2f}" if total else "—"
+    avg_ev = f"{sum(float(t['ev']) for t in tips) / total:.2f}" if total else "—"
     stat_high = sum(1 for t in tips if t["ev"] >= 2.0)
     stat_close = sum(1 for t in tips if t["close_call"])
     stat_ger = sum(1 for t in tips if t["home"] == "Germany" or t["away"] == "Germany")
