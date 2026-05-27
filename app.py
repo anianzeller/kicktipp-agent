@@ -9,7 +9,7 @@ app = Flask(__name__)
 
 ODDS_API_KEY = os.environ.get("ODDS_API_KEY", "")
 SPORT_KEY = os.environ.get("SPORT_KEY", "soccer_fifa_world_cup")
-CACHE_TTL = int(os.environ.get("CACHE_TTL_SECONDS", "3600"))
+CACHE_TTL = int(os.environ.get("CACHE_TTL_SECONDS", "7200"))
 
 _cache = {"data": None, "ts": 0.0, "error": None}
 
