@@ -2,7 +2,7 @@ import os
 import time
 import requests
 from flask import Flask, render_template, redirect, url_for
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from kicktipp_optimizer import analyze_match
 
 app = Flask(__name__)
@@ -48,29 +48,31 @@ FLAGS = {
 
 # ── WM-2026-Spielorte (Gruppenphase, soweit bekannt) ──────────────────────────
 # Schlüssel: frozenset({Heim, Gast}) – reihenfolgeunabhängig
+# Tupel: (Stadionname, UTC-Offset im Sommer)
+# Deutschland Sommer = MESZ = UTC+2
 VENUES = {
-    frozenset({"Mexico", "South Africa"}):           "SoFi Stadium, Los Angeles",
-    frozenset({"Mexico", "Ecuador"}):                "Estadio Azteca, Mexiko-Stadt",
-    frozenset({"Mexico", "Uruguay"}):                "AT&T Stadium, Dallas",
-    frozenset({"United States", "Panama"}):          "MetLife Stadium, New York",
-    frozenset({"United States", "Honduras"}):        "Levi's Stadium, San Francisco",
-    frozenset({"United States", "Jamaica"}):         "Arrowhead Stadium, Kansas City",
-    frozenset({"Canada", "Chile"}):                  "BC Place, Vancouver",
-    frozenset({"Canada", "Honduras"}):               "BMO Field, Toronto",
-    frozenset({"Canada", "Uruguay"}):                "BC Place, Vancouver",
-    frozenset({"Germany", "Japan"}):                 "AT&T Stadium, Dallas",
-    frozenset({"Germany", "Colombia"}):              "Mercedes-Benz Stadium, Atlanta",
-    frozenset({"France", "Argentina"}):              "MetLife Stadium, New York",
-    frozenset({"Brazil", "Nigeria"}):                "MetLife Stadium, New York",
-    frozenset({"Brazil", "Saudi Arabia"}):           "Lumen Field, Seattle",
-    frozenset({"Spain", "Croatia"}):                 "Rose Bowl, Los Angeles",
-    frozenset({"Spain", "Morocco"}):                 "Hard Rock Stadium, Miami",
-    frozenset({"England", "Argentina"}):             "Mercedes-Benz Stadium, Atlanta",
-    frozenset({"Portugal", "Egypt"}):                "Empower Field, Denver",
-    frozenset({"Netherlands", "Senegal"}):           "Lincoln Financial Field, Philadelphia",
-    frozenset({"France", "Australia"}):              "Allegiant Stadium, Las Vegas",
-    frozenset({"Italy", "Japan"}):                   "AT&T Stadium, Dallas",
-    frozenset({"Argentina", "Nigeria"}):             "Mercedes-Benz Stadium, Atlanta",
+    frozenset({"Mexico", "South Africa"}):       ("SoFi Stadium, Los Angeles",             -7),
+    frozenset({"Mexico", "Ecuador"}):            ("Estadio Azteca, Mexiko-Stadt",           -5),
+    frozenset({"Mexico", "Uruguay"}):            ("AT&T Stadium, Dallas",                   -5),
+    frozenset({"United States", "Panama"}):      ("MetLife Stadium, New York",              -4),
+    frozenset({"United States", "Honduras"}):    ("Levi's Stadium, San Francisco",          -7),
+    frozenset({"United States", "Jamaica"}):     ("Arrowhead Stadium, Kansas City",         -5),
+    frozenset({"Canada", "Chile"}):              ("BC Place, Vancouver",                    -7),
+    frozenset({"Canada", "Honduras"}):           ("BMO Field, Toronto",                     -4),
+    frozenset({"Canada", "Uruguay"}):            ("BC Place, Vancouver",                    -7),
+    frozenset({"Germany", "Japan"}):             ("AT&T Stadium, Dallas",                   -5),
+    frozenset({"Germany", "Colombia"}):          ("Mercedes-Benz Stadium, Atlanta",         -4),
+    frozenset({"France", "Argentina"}):          ("MetLife Stadium, New York",              -4),
+    frozenset({"Brazil", "Nigeria"}):            ("MetLife Stadium, New York",              -4),
+    frozenset({"Brazil", "Saudi Arabia"}):       ("Lumen Field, Seattle",                   -7),
+    frozenset({"Spain", "Croatia"}):             ("Rose Bowl, Los Angeles",                 -7),
+    frozenset({"Spain", "Morocco"}):             ("Hard Rock Stadium, Miami",               -4),
+    frozenset({"England", "Argentina"}):         ("Mercedes-Benz Stadium, Atlanta",         -4),
+    frozenset({"Portugal", "Egypt"}):            ("Empower Field, Denver",                  -6),
+    frozenset({"Netherlands", "Senegal"}):       ("Lincoln Financial Field, Philadelphia",  -4),
+    frozenset({"France", "Australia"}):          ("Allegiant Stadium, Las Vegas",           -7),
+    frozenset({"Italy", "Japan"}):               ("AT&T Stadium, Dallas",                   -5),
+    frozenset({"Argentina", "Nigeria"}):         ("Mercedes-Benz Stadium, Atlanta",         -4),
 }
 
 
@@ -79,7 +81,11 @@ def get_flag(team_name):
 
 
 def get_venue(home, away):
-    return VENUES.get(frozenset({home, away}), "")
+    """Gibt (stadium, utc_offset) zurück, oder ("", None) wenn unbekannt."""
+    result = VENUES.get(frozenset({home, away}))
+    if result:
+        return result[0], result[1]
+    return "", None
 
 
 # ── Odds API ──────────────────────────────────────────────────────────────────
@@ -137,14 +143,23 @@ def build_tips(raw_matches):
         except Exception:
             continue
 
+        stadium, tz_offset = get_venue(home, away)
+        time_de = (commence + timedelta(hours=2)).strftime("%H:%M")   # MESZ = UTC+2
+        if tz_offset is not None:
+            time_local = (commence + timedelta(hours=tz_offset)).strftime("%H:%M")
+        else:
+            time_local = None
+
         tips.append({
             "home": home,
             "away": away,
             "flag_home": get_flag(home),
             "flag_away": get_flag(away),
-            "stadium": get_venue(home, away),
+            "stadium": stadium,
+            "time_de": time_de,
+            "time_local": time_local,
             "date": commence.strftime("%d.%m."),
-            "time": commence.strftime("%H:%M"),
+            "time": time_de,
             "odds_1": round(o1, 2),
             "odds_x": round(ox, 2),
             "odds_2": round(o2, 2),

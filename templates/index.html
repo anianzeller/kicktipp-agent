@@ -72,9 +72,23 @@
     /* TOP BAR */
     .card-topbar { background: var(--bg-inner); border-bottom: 1px solid var(--border); padding: .4rem 1rem; display: flex; align-items: center; justify-content: space-between; gap: .75rem; flex-wrap: wrap; }
     .topbar-left { display: flex; align-items: center; gap: .75rem; }
-    .card-time { font-size: .75rem; color: var(--muted2); font-weight: 500; }
+    .card-time { font-size: .75rem; color: var(--muted2); font-weight: 500; display: flex; align-items: center; gap: .4rem; flex-wrap: wrap; }
+    .time-de { color: #fff; font-weight: 600; }
+    .time-sep { color: var(--muted); }
+    .time-local { color: var(--muted2); }
+    .time-label { font-size: .62rem; color: var(--muted); }
     .card-stadium { font-size: .72rem; color: var(--muted); display: flex; align-items: center; gap: .3rem; }
     .card-stadium::before { content: '🏟'; font-size: .8rem; }
+
+    /* LEGENDE */
+    .legend { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: .75rem 1.1rem; margin-bottom: 1.75rem; }
+    .legend summary { font-size: .72rem; font-weight: 600; color: var(--muted2); cursor: pointer; list-style: none; display: flex; align-items: center; gap: .4rem; }
+    .legend summary::-webkit-details-marker { display: none; }
+    .legend summary::before { content: 'ℹ️'; font-size: .85rem; }
+    .legend[open] summary { margin-bottom: .65rem; }
+    .legend-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: .5rem .75rem; }
+    .legend-item { font-size: .72rem; color: var(--muted2); line-height: 1.5; }
+    .legend-item strong { color: #fff; font-weight: 600; }
     .topbar-right { display: flex; align-items: center; gap: .5rem; }
     .bm-count { font-size: .68rem; color: var(--muted); }
 
@@ -175,6 +189,18 @@
     </div>
   </div>
 
+  <!-- Legende -->
+  <details class="legend" open>
+    <summary>Legende &amp; Erkl&auml;rung</summary>
+    <div class="legend-grid">
+      <div class="legend-item"><strong>1 / X / 2</strong><br>Quote auf Heimsieg&nbsp;/ Unentschieden&nbsp;/ Ausw&auml;rtssieg.<br>Beispiel: <strong>1.46</strong> bedeutet: 1&nbsp;&euro; Einsatz = 1,46&nbsp;&euro; Gewinn.</div>
+      <div class="legend-item"><strong>(57&nbsp;%)</strong><br>Implizierte Wahrscheinlichkeit laut Buchmachern &mdash; bereits ohne Buchmacher-Marge berechnet.</div>
+      <div class="legend-item"><strong>EV (Erwartungswert)</strong><br>Erwartete KickTipp-Punkte f&uuml;r diesen Tipp. Maximum = 4&nbsp;Punkte (exaktes Ergebnis).<br><span style="color:#86efac">&#9632; gr&uuml;n</span> &ge; 2,5 &nbsp;·&nbsp; <span style="color:#93c5fd">&#9632; blau</span> &ge; 2,2 &nbsp;·&nbsp; <span style="color:#64748b">&#9632; grau</span> &lt; 2,2</div>
+      <div class="legend-item"><strong>Alt. (Alternativen)</strong><br>Die n&auml;chstbesten Tipps nach EV. Relevant wenn <strong style="color:#fcd34d">knapp</strong> erscheint &mdash; dann liegen zwei Tipps fast gleichauf.</div>
+      <div class="legend-item"><strong>MESZ / Ortszeit</strong><br>MESZ = Mitteleurop&auml;ische Sommerzeit (Deutschland).<br>Ortszeit = Uhrzeit am Spielort (USA / Kanada / Mexiko).</div>
+    </div>
+  </details>
+
   <!-- Match-Karten -->
   {% set ns = namespace(cur_date="") %}
   {% for t in tips %}
@@ -189,7 +215,13 @@
       <!-- Kopfzeile -->
       <div class="card-topbar">
         <div class="topbar-left">
-          <span class="card-time">{{ t.time }} Uhr</span>
+          <span class="card-time">
+            <span class="time-de">{{ t.time_de }}<span class="time-label"> MESZ</span></span>
+            {% if t.time_local %}
+            <span class="time-sep">/</span>
+            <span class="time-local">{{ t.time_local }}<span class="time-label"> Ortszeit</span></span>
+            {% endif %}
+          </span>
           {% if t.stadium %}<span class="card-stadium">{{ t.stadium }}</span>{% endif %}
         </div>
         <div class="topbar-right">
