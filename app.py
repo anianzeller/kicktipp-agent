@@ -13,7 +13,76 @@ CACHE_TTL = int(os.environ.get("CACHE_TTL_SECONDS", "7200"))
 
 _cache = {"data": None, "ts": 0.0, "error": None}
 
+# ── Flaggen-Emojis ────────────────────────────────────────────────────────────
+FLAGS = {
+    # Europa
+    "Germany": "🇩🇪", "France": "🇫🇷", "Spain": "🇪🇸", "Portugal": "🇵🇹",
+    "Netherlands": "🇳🇱", "England": "🏴󠁧󠁢󠁥󠁮󠁧󠁿", "Belgium": "🇧🇪", "Croatia": "🇭🇷",
+    "Switzerland": "🇨🇭", "Austria": "🇦🇹", "Serbia": "🇷🇸", "Poland": "🇵🇱",
+    "Denmark": "🇩🇰", "Ukraine": "🇺🇦", "Turkey": "🇹🇷", "Czech Republic": "🇨🇿",
+    "Hungary": "🇭🇺", "Scotland": "🏴󠁧󠁢󠁳󠁣󠁴󠁿", "Slovakia": "🇸🇰", "Romania": "🇷🇴",
+    "Greece": "🇬🇷", "Albania": "🇦🇱", "Slovenia": "🇸🇮", "Iceland": "🇮🇸",
+    "Norway": "🇳🇴", "Sweden": "🇸🇪", "Finland": "🇫🇮", "Wales": "🏴󠁧󠁢󠁷󠁬󠁳󠁿",
+    "North Macedonia": "🇲🇰", "Bosnia and Herzegovina": "🇧🇦", "Kosovo": "🇽🇰",
+    # Americas
+    "Brazil": "🇧🇷", "Argentina": "🇦🇷", "Colombia": "🇨🇴", "Uruguay": "🇺🇾",
+    "Ecuador": "🇪🇨", "Chile": "🇨🇱", "Paraguay": "🇵🇾", "Peru": "🇵🇪",
+    "Venezuela": "🇻🇪", "Bolivia": "🇧🇴", "Mexico": "🇲🇽", "United States": "🇺🇸",
+    "USA": "🇺🇸", "Canada": "🇨🇦", "Costa Rica": "🇨🇷", "Honduras": "🇭🇳",
+    "Panama": "🇵🇦", "Jamaica": "🇯🇲", "El Salvador": "🇸🇻", "Guatemala": "🇬🇹",
+    "Trinidad and Tobago": "🇹🇹", "Haiti": "🇭🇹", "Cuba": "🇨🇺",
+    # Afrika
+    "Nigeria": "🇳🇬", "South Africa": "🇿🇦", "Morocco": "🇲🇦", "Senegal": "🇸🇳",
+    "Egypt": "🇪🇬", "Cameroon": "🇨🇲", "Ghana": "🇬🇭", "Ivory Coast": "🇨🇮",
+    "Mali": "🇲🇱", "DR Congo": "🇨🇩", "Algeria": "🇩🇿", "Tunisia": "🇹🇳",
+    "Tanzania": "🇹🇿", "Zambia": "🇿🇲", "Angola": "🇦🇴", "Uganda": "🇺🇬",
+    "Gabon": "🇬🇦", "Mozambique": "🇲🇿", "Guinea": "🇬🇳", "Burkina Faso": "🇧🇫",
+    "Cape Verde": "🇨🇻", "Equatorial Guinea": "🇬🇶", "Kenya": "🇰🇪",
+    # Asien / Ozeanien
+    "Japan": "🇯🇵", "South Korea": "🇰🇷", "Iran": "🇮🇷", "Australia": "🇦🇺",
+    "Saudi Arabia": "🇸🇦", "Qatar": "🇶🇦", "Jordan": "🇯🇴", "Uzbekistan": "🇺🇿",
+    "Iraq": "🇮🇶", "Indonesia": "🇮🇩", "China": "🇨🇳", "New Zealand": "🇳🇿",
+    "Palestine": "🇵🇸", "Oman": "🇴🇲", "Bahrain": "🇧🇭", "Thailand": "🇹🇭",
+    "India": "🇮🇳", "United Arab Emirates": "🇦🇪",
+}
 
+# ── WM-2026-Spielorte (Gruppenphase, soweit bekannt) ──────────────────────────
+# Schlüssel: frozenset({Heim, Gast}) – reihenfolgeunabhängig
+VENUES = {
+    frozenset({"Mexico", "South Africa"}):           "SoFi Stadium, Los Angeles",
+    frozenset({"Mexico", "Ecuador"}):                "Estadio Azteca, Mexiko-Stadt",
+    frozenset({"Mexico", "Uruguay"}):                "AT&T Stadium, Dallas",
+    frozenset({"United States", "Panama"}):          "MetLife Stadium, New York",
+    frozenset({"United States", "Honduras"}):        "Levi's Stadium, San Francisco",
+    frozenset({"United States", "Jamaica"}):         "Arrowhead Stadium, Kansas City",
+    frozenset({"Canada", "Chile"}):                  "BC Place, Vancouver",
+    frozenset({"Canada", "Honduras"}):               "BMO Field, Toronto",
+    frozenset({"Canada", "Uruguay"}):                "BC Place, Vancouver",
+    frozenset({"Germany", "Japan"}):                 "AT&T Stadium, Dallas",
+    frozenset({"Germany", "Colombia"}):              "Mercedes-Benz Stadium, Atlanta",
+    frozenset({"France", "Argentina"}):              "MetLife Stadium, New York",
+    frozenset({"Brazil", "Nigeria"}):                "MetLife Stadium, New York",
+    frozenset({"Brazil", "Saudi Arabia"}):           "Lumen Field, Seattle",
+    frozenset({"Spain", "Croatia"}):                 "Rose Bowl, Los Angeles",
+    frozenset({"Spain", "Morocco"}):                 "Hard Rock Stadium, Miami",
+    frozenset({"England", "Argentina"}):             "Mercedes-Benz Stadium, Atlanta",
+    frozenset({"Portugal", "Egypt"}):                "Empower Field, Denver",
+    frozenset({"Netherlands", "Senegal"}):           "Lincoln Financial Field, Philadelphia",
+    frozenset({"France", "Australia"}):              "Allegiant Stadium, Las Vegas",
+    frozenset({"Italy", "Japan"}):                   "AT&T Stadium, Dallas",
+    frozenset({"Argentina", "Nigeria"}):             "Mercedes-Benz Stadium, Atlanta",
+}
+
+
+def get_flag(team_name):
+    return FLAGS.get(team_name, "🏳")
+
+
+def get_venue(home, away):
+    return VENUES.get(frozenset({home, away}), "")
+
+
+# ── Odds API ──────────────────────────────────────────────────────────────────
 def fetch_odds():
     url = f"https://api.the-odds-api.com/v4/sports/{SPORT_KEY}/odds/"
     resp = requests.get(
@@ -71,6 +140,9 @@ def build_tips(raw_matches):
         tips.append({
             "home": home,
             "away": away,
+            "flag_home": get_flag(home),
+            "flag_away": get_flag(away),
+            "stadium": get_venue(home, away),
             "date": commence.strftime("%d.%m."),
             "time": commence.strftime("%H:%M"),
             "odds_1": round(o1, 2),
@@ -78,7 +150,6 @@ def build_tips(raw_matches):
             "odds_2": round(o2, 2),
             "tip": result["recommended_tip"],
             "ev": result["recommended_ev"],
-            "ev_pct": min(int(result["recommended_ev"] / 4 * 100), 100),
             "top_tips": result["top_tips"][:4],
             "close_call": result["close_call"],
             "implied_1": f"{result['implied_probs']['1']:.0%}",
