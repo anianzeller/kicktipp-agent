@@ -712,6 +712,175 @@ footer .credit {
   color: color-mix(in oklab, var(--paper) 50%, transparent);
 }
 
+/* ---------- Bookies disclosure ---------- */
+.bookies-details {
+  margin-top: 20px;
+  border: 1px solid var(--rule-soft);
+  background: var(--paper-3);
+}
+.bookies-details > summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 14px 20px;
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  user-select: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.bookies-details > summary::-webkit-details-marker { display: none; }
+.bookies-details > summary::before {
+  content: "+";
+  font-size: 14px;
+  color: var(--pitch);
+  font-weight: 700;
+  line-height: 1;
+}
+.bookies-details[open] > summary::before { content: "−"; }
+.bookies-details > summary:hover { color: var(--ink); }
+.bookies-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 0 20px 16px;
+}
+.bookies-grid a {
+  font-family: var(--mono);
+  font-size: 11px;
+  text-decoration: none;
+  color: var(--ink-2);
+  background: var(--paper);
+  border: 1px solid var(--rule-soft);
+  padding: 4px 10px;
+  border-radius: 2px;
+  letter-spacing: 0.04em;
+  transition: border-color 0.12s, color 0.12s;
+}
+.bookies-grid a:hover {
+  border-color: var(--pitch);
+  color: var(--pitch);
+}
+.bookies-note {
+  margin: 0;
+  padding: 12px 20px 16px;
+  font-size: 12px;
+  color: var(--muted);
+  border-top: 1px solid var(--rule-soft);
+  line-height: 1.5;
+}
+
+/* ---------- Collapsible summary table ---------- */
+.collapsible {
+  border: 1px solid var(--rule-soft);
+  background: var(--paper-3);
+}
+.collapsible > summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  user-select: none;
+}
+.collapsible > summary::-webkit-details-marker { display: none; }
+.collapsible > summary:hover .toggle-label { color: var(--pitch); }
+.toggle-label {
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink);
+  transition: color 0.15s;
+}
+.toggle-hint {
+  font-size: 11px;
+  color: var(--muted);
+  letter-spacing: 0.04em;
+}
+.toggle-chevron {
+  margin-left: auto;
+  font-family: var(--mono);
+  font-size: 18px;
+  font-weight: 400;
+  color: var(--muted);
+  line-height: 1;
+  transition: transform 0.2s;
+}
+.collapsible[open] .toggle-chevron { transform: rotate(45deg); }
+.collapsible .summary-wrap {
+  padding: 0 20px 20px;
+  overflow-x: auto;
+}
+
+/* ---------- Histogram interactive states ---------- */
+.histogram .bar {
+  cursor: pointer;
+  outline: none;
+}
+.histogram .bar:focus-visible {
+  outline: 2px solid var(--pitch);
+  outline-offset: 1px;
+}
+.histogram .bar.active {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+  opacity: 1 !important;
+}
+.histogram .bar.disabled {
+  opacity: 0.28;
+}
+.histogram .bar.empty {
+  cursor: default;
+}
+
+/* ---------- Histogram hint ---------- */
+.histogram-hint {
+  margin-top: 10px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--muted-2);
+  letter-spacing: 0.03em;
+}
+
+/* ---------- EV-range filter pill ---------- */
+.evrange-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  background: var(--ink);
+  color: var(--paper);
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  border-radius: 2px;
+  cursor: default;
+  user-select: none;
+}
+.evrange-pill .dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--pitch-soft);
+  flex-shrink: 0;
+}
+.evrange-pill .lbl {
+  color: var(--paper);
+}
+.evrange-pill .x {
+  cursor: pointer;
+  color: var(--muted-2);
+  font-size: 14px;
+  line-height: 1;
+  padding: 0 2px;
+  transition: color 0.12s;
+}
+.evrange-pill .x:hover { color: var(--paper); }
+
 /* Anchor entry */
 [data-reveal] { opacity: 0; transform: translateY(8px); }
 [data-reveal].in { opacity: 1; transform: none; transition: opacity 0.5s ease, transform 0.5s ease; }

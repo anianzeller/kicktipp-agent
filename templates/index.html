@@ -155,6 +155,31 @@
       — es spiegelt ausschließlich die Markteinschätzung der Buchmacher wider. Optimiert wird
       ausschließlich auf das KickTipp-Punkteschema, nicht auf Wettrendite.
     </div>
+
+    <details class="bookies-details" data-reveal>
+      <summary>Welche Buchmacher fließen ein?</summary>
+      <div class="bookies-grid">
+        <a href="https://www.bet365.com" target="_blank" rel="noopener">Bet365</a>
+        <a href="https://www.pinnacle.com" target="_blank" rel="noopener">Pinnacle</a>
+        <a href="https://www.betfair.com" target="_blank" rel="noopener">Betfair</a>
+        <a href="https://www.williamhill.com" target="_blank" rel="noopener">William Hill</a>
+        <a href="https://www.unibet.com" target="_blank" rel="noopener">Unibet</a>
+        <a href="https://www.tipico.de" target="_blank" rel="noopener">Tipico</a>
+        <a href="https://www.bwin.com" target="_blank" rel="noopener">Bwin</a>
+        <a href="https://www.betano.de" target="_blank" rel="noopener">Betano</a>
+        <a href="https://www.interwetten.de" target="_blank" rel="noopener">Interwetten</a>
+        <a href="https://www.betsson.com" target="_blank" rel="noopener">Betsson</a>
+        <a href="https://www.1xbet.com" target="_blank" rel="noopener">1xBet</a>
+        <a href="https://www.marathonbet.com" target="_blank" rel="noopener">Marathon Bet</a>
+        <a href="https://www.matchbook.com" target="_blank" rel="noopener">Matchbook</a>
+        <a href="https://www.betway.com" target="_blank" rel="noopener">Betway</a>
+        <a href="https://www.skybet.com" target="_blank" rel="noopener">Sky Bet</a>
+        <a href="https://www.ladbrokes.com" target="_blank" rel="noopener">Ladbrokes</a>
+        <a href="https://www.coral.co.uk" target="_blank" rel="noopener">Coral</a>
+        <a href="https://www.paddypower.com" target="_blank" rel="noopener">Paddy Power</a>
+      </div>
+      <p class="bookies-note">Nicht alle Buchmacher bieten für jedes Spiel Quoten an. Das Modell nutzt ausschließlich Quoten, die zum Abfragezeitpunkt über the-odds-api.com verfügbar waren.</p>
+    </details>
   </div>
 </section>
 
@@ -174,24 +199,31 @@
       </div>
     </div>
 
-    <div class="summary-wrap">
-      <table class="summary-table" id="summary-table">
-        <thead>
-          <tr>
-            <th>Datum</th>
-            <th>Anstoß</th>
-            <th>Begegnung</th>
-            <th>Tipp</th>
-            <th class="num">EV</th>
-            <th class="num">Heim %</th>
-            <th class="num">X %</th>
-            <th class="num">Gast %</th>
-            <th>Hinweis</th>
-          </tr>
-        </thead>
-        <tbody><!-- populated by app.js --></tbody>
-      </table>
-    </div>
+    <details class="collapsible" id="summary-collapse">
+      <summary>
+        <span class="toggle-label">Tabelle anzeigen</span>
+        <span class="toggle-hint mono">{{ stat_total }} Spiele · sortierbar</span>
+        <span class="toggle-chevron" aria-hidden="true">+</span>
+      </summary>
+      <div class="summary-wrap">
+        <table class="summary-table" id="summary-table">
+          <thead>
+            <tr>
+              <th>Datum</th>
+              <th>Anstoß</th>
+              <th>Begegnung</th>
+              <th>Tipp</th>
+              <th class="num">EV</th>
+              <th class="num">Heim %</th>
+              <th class="num">X %</th>
+              <th class="num">Gast %</th>
+              <th>Hinweis</th>
+            </tr>
+          </thead>
+          <tbody><!-- populated by app.js --></tbody>
+        </table>
+      </div>
+    </details>
   </div>
 </section>
 
@@ -226,6 +258,7 @@
         <span>0.90</span><span>1.10</span><span>1.30</span><span>1.50</span>
         <span>1.70</span><span>1.90</span><span>2.10</span><span>2.30</span>
       </div>
+      <div class="histogram-hint">Tipp: Klick auf einen Balken filtert die Spiele unten nach diesem EV-Bereich.</div>
     </div>
   </div>
 </section>

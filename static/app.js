@@ -113,28 +113,115 @@
   }
 
   // ---------- histogram ----------
+  const HIST_BINS = 20;
+  const HIST_MIN = 0.9;
+  const HIST_MAX = 2.3;
+  const HIST_WIDTH = (HIST_MAX - HIST_MIN) / HIST_BINS;
+
+  function binFor(ev) {
+    let idx = Math.floor((ev - HIST_MIN) / HIST_WIDTH);
+    if (idx < 0) idx = 0;
+    if (idx >= HIST_BINS) idx = HIST_BINS - 1;
+    return idx;
+  }
+
+  function countInRange(lo, hi) {
+    return matches.filter((m) => m.ev >= lo && m.ev < hi).length;
+  }
+
+  function highlightActiveBar(activeBinIdx) {
+    $$(".histogram .bar").forEach((bar, i) => {
+      bar.classList.toggle("active", i === activeBinIdx);
+      bar.classList.toggle("disabled", activeBinIdx >= 0 && i !== activeBinIdx);
+    });
+  }
+
+  function updateEvRangePill() {
+    // Remove existing pill if any
+    const existing = $("#evrange-pill");
+    if (existing) existing.remove();
+
+    if (!evRange) return;
+
+    const { lo, hi } = evRange;
+    const n = countInRange(lo, hi);
+    const pill = document.createElement("div");
+    pill.id = "evrange-pill";
+    pill.className = "evrange-pill";
+    pill.innerHTML = `<span class="dot"></span><span class="lbl">EV ${lo.toFixed(2)}–${hi.toFixed(2)} · ${n} Spiel${n === 1 ? "" : "e"}</span><span class="x" role="button" tabindex="0" aria-label="EV-Filter entfernen" title="Filter entfernen">×</span>`;
+
+    // Insert into filter-bar before the sort select
+    const sortEl = $("#sort");
+    const filterBar = $(".filter-bar");
+    if (filterBar && sortEl) {
+      filterBar.insertBefore(pill, sortEl);
+    } else if (filterBar) {
+      filterBar.appendChild(pill);
+    }
+
+    // Wire dismiss
+    pill.querySelector(".x").addEventListener("click", clearEvRangeFilter);
+    pill.querySelector(".x").addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); clearEvRangeFilter(); }
+    });
+  }
+
+  function applyEvRangeFilter(lo, hi, binIdx) {
+    evRange = { lo, hi };
+    highlightActiveBar(binIdx);
+    updateEvRangePill();
+    renderMatches();
+  }
+
+  function clearEvRangeFilter() {
+    evRange = null;
+    highlightActiveBar(-1);
+    updateEvRangePill();
+    renderMatches();
+  }
+
   function renderHistogram() {
     const host = $("#histogram");
     if (!host) return;
     if (!matches.length) { host.innerHTML = ""; return; }
 
-    const bins = 20;
-    const min = 0.9, max = 2.3;
-    const width = (max - min) / bins;
-    const counts = new Array(bins).fill(0);
-    matches.forEach((m) => {
-      let idx = Math.floor((m.ev - min) / width);
-      if (idx < 0) idx = 0;
-      if (idx >= bins) idx = bins - 1;
-      counts[idx]++;
-    });
+    const counts = new Array(HIST_BINS).fill(0);
+    matches.forEach((m) => { counts[binFor(m.ev)]++; });
     const maxCount = Math.max(...counts);
+
     host.innerHTML = counts.map((c, i) => {
-      const evMid = min + i * width + width / 2;
+      const evLo = HIST_MIN + i * HIST_WIDTH;
+      const evHi = evLo + HIST_WIDTH;
+      const evMid = evLo + HIST_WIDTH / 2;
       const heightPct = c === 0 ? 2 : (c / maxCount) * 100;
       const cls = evClassBar(evMid);
-      return `<div class="bar ${cls}" style="height:${heightPct}%" data-label="EV ≈ ${evMid.toFixed(2)} · ${c} Spiel${c === 1 ? "" : "e"}"></div>`;
+      const emptyClass = c === 0 ? " empty" : "";
+      const label = `EV ${evLo.toFixed(2)}–${evHi.toFixed(2)} · ${c} Spiel${c === 1 ? "" : "e"}`;
+      return `<div class="bar ${cls}${emptyClass}" style="height:${heightPct}%"
+        data-bin="${i}" data-ev-lo="${evLo.toFixed(3)}" data-ev-hi="${evHi.toFixed(3)}" data-count="${c}"
+        data-label="${label}"
+        role="${c > 0 ? "button" : "presentation"}" ${c > 0 ? `tabindex="0" aria-label="${label}"` : ""}
+      ></div>`;
     }).join("");
+
+    // Wire click + keyboard on bars
+    $$(".histogram .bar").forEach((bar) => {
+      const c = parseInt(bar.dataset.count, 10);
+      if (c === 0) return;
+      bar.addEventListener("click", () => {
+        const binIdx = parseInt(bar.dataset.bin, 10);
+        const lo = parseFloat(bar.dataset.evLo);
+        const hi = parseFloat(bar.dataset.evHi);
+        if (evRange && evRange.lo === lo && evRange.hi === hi) {
+          clearEvRangeFilter();
+        } else {
+          applyEvRangeFilter(lo, hi, binIdx);
+        }
+      });
+      bar.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); bar.click(); }
+      });
+    });
   }
 
   // ---------- match card ----------
@@ -213,10 +300,14 @@
   let activeFilter = "all";
   let activeSort = "date";
   let searchTerm = "";
+  let evRange = null; // { lo, hi } when histogram bar is active
 
   function applyFilters(list) {
     let out = [...list];
-    if (activeFilter === "high") out = out.filter((m) => m.ev >= 2.0);
+    // EV range filter from histogram (takes precedence over chip filter)
+    if (evRange) {
+      out = out.filter((m) => m.ev >= evRange.lo && m.ev < evRange.hi);
+    } else if (activeFilter === "high") out = out.filter((m) => m.ev >= 2.0);
     else if (activeFilter === "close") out = out.filter((m) => m.isClose);
     else if (activeFilter === "ger") out = out.filter((m) => m.germany);
     if (searchTerm) {
@@ -278,6 +369,12 @@
         $$(".chip").forEach((c) => c.classList.remove("active"));
         chip.classList.add("active");
         activeFilter = chip.dataset.filter;
+        // Clear EV range filter when switching chip
+        if (evRange) {
+          evRange = null;
+          highlightActiveBar(-1);
+          updateEvRangePill();
+        }
         renderMatches();
       });
     });
