@@ -45,7 +45,7 @@
     <div class="masthead-grid" style="margin-top: 16px;">
       <div>
         <h1 data-reveal>
-          Der <em>EV-optimale</em><br>
+          Der <em>EV<span class="abbr">(Expected Value)</span>-optimale</em><br>
           Tippzettel.
         </h1>
         <p class="lede" data-reveal>
@@ -58,7 +58,7 @@
 
       <dl class="masthead-meta" data-reveal>
         <dt>Autor</dt><dd>Anian Z.</dd>
-        <dt>Quelle</dt><dd>the-odds-api.com</dd>
+        <dt>Quelle</dt><dd><a href="https://the-odds-api.com" target="_blank" rel="noopener">the-odds-api.com ↗</a></dd>
         <dt>Buchmacher</dt><dd>Ø {{ avg_bookies }} pro Spiel</dd>
         <dt>Modell</dt><dd>Poisson + Dixon-Coles</dd>
         <dt>Cache</dt><dd>{{ cache_ttl_min }} Min.</dd>
@@ -120,29 +120,31 @@
 
     <div class="method-grid">
       <article class="method-card" data-reveal>
-        <div class="step">01</div>
-        <h3>Quoten → Wahrscheinlichkeiten</h3>
+        <div class="head-wrap"><div class="step">01</div>
+        <h3>Quoten → Wahrscheinlichkeiten</h3></div>
         <p>Die durchschnittlichen 1X2-Quoten mehrerer Buchmacher werden um den Buchmacher-Vig (overround) bereinigt und in echte Wahrscheinlichkeiten für Heimsieg, Unentschieden und Auswärtssieg umgerechnet.</p>
         <span class="formula">p<sub>i</sub> = (1/o<sub>i</sub>) / Σ(1/o<sub>j</sub>)</span>
       </article>
 
       <article class="method-card" data-reveal>
-        <div class="step">02</div>
-        <h3>Poisson-Modell</h3>
+        <div class="head-wrap"><div class="step">02</div>
+        <h3>Poisson-Modell</h3></div>
         <p>Aus den 1X2-Wahrscheinlichkeiten leiten wir per Gittersuche die erwarteten Toranzahlen λ<sub>Heim</sub> und λ<sub>Gast</sub> ab, die am besten zur Markteinschätzung passen.</p>
         <span class="formula">argmin Σ |p̂ − p|²</span>
+        <a class="more-link" href="https://de.wikipedia.org/wiki/Poisson-Verteilung" target="_blank" rel="noopener">Mehr zur Poisson-Verteilung ↗</a>
       </article>
 
       <article class="method-card" data-reveal>
-        <div class="step">03</div>
-        <h3>Dixon-Coles-Matrix</h3>
+        <div class="head-wrap"><div class="step">03</div>
+        <h3>Dixon-Coles-Matrix</h3></div>
         <p>Für jedes mögliche Ergebnis wird die Eintreffwahrscheinlichkeit berechnet. Eine Dixon-Coles-Korrektur justiert Niedrigtor-Ergebnisse (0:0, 1:0, 0:1, 1:1) realistischer als reines Poisson.</p>
         <span class="formula">τ(x, y, λ, μ) · P(x) · P(y)</span>
+        <a class="more-link" href="https://en.wikipedia.org/wiki/Dixon%E2%80%93Coles_model" target="_blank" rel="noopener">Mehr zum Dixon-Coles-Modell ↗</a>
       </article>
 
       <article class="method-card" data-reveal>
-        <div class="step">04</div>
-        <h3>EV-Optimierung</h3>
+        <div class="head-wrap"><div class="step">04</div>
+        <h3>EV-Optimierung</h3></div>
         <p>Für jeden möglichen Tipp berechnen wir den Expected Value mit dem KickTipp-Schema: exakt = 4 Pkt, Tordifferenz = 3 Pkt, Tendenz = 2 Pkt, falsch = 0. Der Tipp mit dem höchsten EV gewinnt.</p>
         <span class="formula">EV = Σ P(R) · Punkte(R, T)</span>
       </article>
@@ -288,8 +290,8 @@
         <p>Das nach Expected Value optimale Ergebnis. KickTipp belohnt exakte Treffer mit 4, Tordifferenz mit 3 und Tendenz mit 2 Punkten.</p>
       </div>
       <div class="legend-item">
-        <h4>EV-Skala</h4>
-        <p>Erwartete KickTipp-Punkte pro Spiel.</p>
+        <h4>EV-Skala <span class="abbr-inline">(Expected Value)</span></h4>
+        <p>Erwartete KickTipp-Punkte pro Spiel — gewichteter Mittelwert aller möglichen Ergebnisse.</p>
         <div class="legend-swatches">
           <span class="legend-swatch high">≥ 2.0</span>
           <span class="legend-swatch mid">≥ 1.4</span>
@@ -319,7 +321,7 @@
     <div class="foot-grid">
       <div>
         <h4>Daten</h4>
-        <p>Quoten via the-odds-api.com · Modell: Poisson + Dixon-Coles · Punkteschema: 4 / 3 / 2 / 0</p>
+        <p>Quoten via <a href="https://the-odds-api.com" target="_blank" rel="noopener">the-odds-api.com</a> · Modell: <a href="https://de.wikipedia.org/wiki/Poisson-Verteilung" target="_blank" rel="noopener">Poisson</a> + <a href="https://en.wikipedia.org/wiki/Dixon%E2%80%93Coles_model" target="_blank" rel="noopener">Dixon-Coles</a> · Punkteschema: 4 / 3 / 2 / 0</p>
       </div>
       <div>
         <h4>Quellcode</h4>
