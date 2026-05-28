@@ -151,34 +151,43 @@
     </div>
 
     <div class="disclaimer" data-reveal>
-      <strong>Kein Wettratgeber.</strong> Das Modell kennt keine Verletzungen, Aufstellungen oder aktuelle Form
-      — es spiegelt ausschließlich die Markteinschätzung der Buchmacher wider. Optimiert wird
-      ausschließlich auf das KickTipp-Punkteschema, nicht auf Wettrendite.
+      <strong>Spoiler: nicht jedes Spiel endet 1:0.</strong> Wir alle wissen, dass die Wirklichkeit
+      kreativer ist als die Wahrscheinlichkeit — aber die Wahrscheinlichkeit ist nun mal stur:
+      meistens schlägt das langweilige 1:0 jeden 4:3-Tagtraum. Also: bleibt kreativ beim Tippen,
+      lasst euch hier aber inspirieren. Und wenn am Ende doch ein 4:3 fällt, war's
+      garantiert nicht das Modell — sondern der Fußballgott persönlich.
     </div>
 
     <details class="bookies-details" data-reveal>
-      <summary>Welche Buchmacher fließen ein?</summary>
+      <summary>
+        <span class="b-label">Welche Buchmacher fließen ein?</span>
+        <span class="b-hint mono">Ø {{ avg_bookies }} Quoten pro Spiel · aggregiert via the-odds-api.com</span>
+        <span class="b-chev" aria-hidden="true">+</span>
+      </summary>
       <div class="bookies-grid">
-        <a href="https://www.bet365.com" target="_blank" rel="noopener">Bet365</a>
-        <a href="https://www.pinnacle.com" target="_blank" rel="noopener">Pinnacle</a>
-        <a href="https://www.betfair.com" target="_blank" rel="noopener">Betfair</a>
-        <a href="https://www.williamhill.com" target="_blank" rel="noopener">William Hill</a>
-        <a href="https://www.unibet.com" target="_blank" rel="noopener">Unibet</a>
-        <a href="https://www.tipico.de" target="_blank" rel="noopener">Tipico</a>
-        <a href="https://www.bwin.com" target="_blank" rel="noopener">Bwin</a>
-        <a href="https://www.betano.de" target="_blank" rel="noopener">Betano</a>
-        <a href="https://www.interwetten.de" target="_blank" rel="noopener">Interwetten</a>
-        <a href="https://www.betsson.com" target="_blank" rel="noopener">Betsson</a>
-        <a href="https://www.1xbet.com" target="_blank" rel="noopener">1xBet</a>
-        <a href="https://www.marathonbet.com" target="_blank" rel="noopener">Marathon Bet</a>
-        <a href="https://www.matchbook.com" target="_blank" rel="noopener">Matchbook</a>
-        <a href="https://www.betway.com" target="_blank" rel="noopener">Betway</a>
-        <a href="https://www.skybet.com" target="_blank" rel="noopener">Sky Bet</a>
-        <a href="https://www.ladbrokes.com" target="_blank" rel="noopener">Ladbrokes</a>
-        <a href="https://www.coral.co.uk" target="_blank" rel="noopener">Coral</a>
-        <a href="https://www.paddypower.com" target="_blank" rel="noopener">Paddy Power</a>
+        <a href="https://www.bet365.com" target="_blank" rel="noopener nofollow">Bet365</a>
+        <a href="https://www.pinnacle.com" target="_blank" rel="noopener nofollow">Pinnacle</a>
+        <a href="https://www.betfair.com" target="_blank" rel="noopener nofollow">Betfair</a>
+        <a href="https://www.williamhill.com" target="_blank" rel="noopener nofollow">William Hill</a>
+        <a href="https://www.unibet.com" target="_blank" rel="noopener nofollow">Unibet</a>
+        <a href="https://www.tipico.de" target="_blank" rel="noopener nofollow">Tipico</a>
+        <a href="https://www.bwin.com" target="_blank" rel="noopener nofollow">Bwin</a>
+        <a href="https://www.betano.de" target="_blank" rel="noopener nofollow">Betano</a>
+        <a href="https://www.interwetten.com" target="_blank" rel="noopener nofollow">Interwetten</a>
+        <a href="https://www.betsson.com" target="_blank" rel="noopener nofollow">Betsson</a>
+        <a href="https://www.1xbet.com" target="_blank" rel="noopener nofollow">1xBet</a>
+        <a href="https://www.marathonbet.com" target="_blank" rel="noopener nofollow">Marathon Bet</a>
+        <a href="https://www.matchbook.com" target="_blank" rel="noopener nofollow">Matchbook</a>
+        <a href="https://sports.betway.com" target="_blank" rel="noopener nofollow">Betway</a>
+        <a href="https://www.skybet.com" target="_blank" rel="noopener nofollow">Sky Bet</a>
+        <a href="https://www.ladbrokes.com" target="_blank" rel="noopener nofollow">Ladbrokes</a>
+        <a href="https://www.coral.co.uk" target="_blank" rel="noopener nofollow">Coral</a>
+        <a href="https://www.paddypower.com" target="_blank" rel="noopener nofollow">Paddy Power</a>
       </div>
-      <p class="bookies-note">Nicht alle Buchmacher bieten für jedes Spiel Quoten an. Das Modell nutzt ausschließlich Quoten, die zum Abfragezeitpunkt über the-odds-api.com verfügbar waren.</p>
+      <p class="bookies-note mono">
+        Die tatsächliche Liste pro Spiel variiert. the-odds-api.com aggregiert je nach Liga und Region zwischen 10 und 25 Buchmachern.
+        Die Verlinkung dient ausschließlich Quellen-Transparenz — keine Spielempfehlung.
+      </p>
     </details>
   </div>
 </section>
@@ -239,8 +248,8 @@
       </div>
       <div class="deck">
         Wie viel Erwartungsnutzen steckt im Durchschnittsspiel? Die Verteilung zeigt:
-        Die meisten Begegnungen liegen zwischen 1.2 und 1.7 EV — Hoch-EV-Spiele
-        (≥ 2.0) mit klar erkennbarem Favoriten sind die Ausnahme.
+        Die meisten Begegnungen liegen zwischen 1.2 und 1.7 EV — nur {{ stat_high }} Spiele
+        bieten Hoch-EV ≥ 2.0.
       </div>
     </div>
 

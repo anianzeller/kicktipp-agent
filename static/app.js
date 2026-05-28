@@ -126,55 +126,58 @@
   }
 
   function countInRange(lo, hi) {
-    return matches.filter((m) => m.ev >= lo && m.ev < hi).length;
+    return matches.filter((m) => m.ev >= lo && m.ev < hi + 1e-9).length;
   }
 
   function highlightActiveBar(activeBinIdx) {
-    $$(".histogram .bar").forEach((bar, i) => {
-      bar.classList.toggle("active", i === activeBinIdx);
-      bar.classList.toggle("disabled", activeBinIdx >= 0 && i !== activeBinIdx);
+    $$(".histogram .bar").forEach((bar) => {
+      const binIdx = parseInt(bar.dataset.bin, 10);
+      bar.classList.toggle("active", binIdx === activeBinIdx);
     });
   }
 
   function updateEvRangePill() {
-    // Remove existing pill if any
-    const existing = $("#evrange-pill");
-    if (existing) existing.remove();
-
-    if (!evRange) return;
-
-    const { lo, hi } = evRange;
-    const n = countInRange(lo, hi);
-    const pill = document.createElement("div");
-    pill.id = "evrange-pill";
-    pill.className = "evrange-pill";
-    pill.innerHTML = `<span class="dot"></span><span class="lbl">EV ${lo.toFixed(2)}–${hi.toFixed(2)} · ${n} Spiel${n === 1 ? "" : "e"}</span><span class="x" role="button" tabindex="0" aria-label="EV-Filter entfernen" title="Filter entfernen">×</span>`;
-
-    // Insert into filter-bar before the sort select
-    const sortEl = $("#sort");
-    const filterBar = $(".filter-bar");
-    if (filterBar && sortEl) {
-      filterBar.insertBefore(pill, sortEl);
-    } else if (filterBar) {
-      filterBar.appendChild(pill);
+    let pill = $("#evrange-pill");
+    if (!evRange) {
+      if (pill) pill.remove();
+      return;
     }
-
-    // Wire dismiss
-    pill.querySelector(".x").addEventListener("click", clearEvRangeFilter);
-    pill.querySelector(".x").addEventListener("keydown", (e) => {
-      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); clearEvRangeFilter(); }
-    });
+    const label = `EV ${evRange.lo.toFixed(2)}–${evRange.hi.toFixed(2)} · ${countInRange(evRange.lo, evRange.hi)} Spiele`;
+    if (!pill) {
+      pill = document.createElement("button");
+      pill.id = "evrange-pill";
+      pill.className = "evrange-pill";
+      pill.type = "button";
+      pill.addEventListener("click", clearEvRangeFilter);
+      const chips = $("#chips");
+      if (chips) chips.parentNode.insertBefore(pill, chips.nextSibling);
+    }
+    pill.innerHTML = `<span class="dot"></span><span class="lbl">${label}</span><span class="x" aria-hidden="true">×</span>`;
+    pill.title = "EV-Filter entfernen";
   }
 
   function applyEvRangeFilter(lo, hi, binIdx) {
-    evRange = { lo, hi };
+    evRange = { lo, hi, bin: binIdx };
+    // Deactivate chip filters — EV range takes precedence
+    $$(".chip").forEach((c) => c.classList.remove("active"));
+    activeFilter = "evrange";
     highlightActiveBar(binIdx);
     updateEvRangePill();
     renderMatches();
+    // Smooth-scroll to match cards
+    const target = document.getElementById("spiele");
+    if (target) {
+      const y = target.getBoundingClientRect().top + window.scrollY - 60;
+      window.scrollTo({ top: y, behavior: "smooth" });
+    }
   }
 
   function clearEvRangeFilter() {
     evRange = null;
+    activeFilter = "all";
+    $$(".chip").forEach((c) => c.classList.remove("active"));
+    const allChip = document.querySelector('[data-filter="all"]');
+    if (allChip) allChip.classList.add("active");
     highlightActiveBar(-1);
     updateEvRangePill();
     renderMatches();
@@ -195,31 +198,26 @@
       const evMid = evLo + HIST_WIDTH / 2;
       const heightPct = c === 0 ? 2 : (c / maxCount) * 100;
       const cls = evClassBar(evMid);
-      const emptyClass = c === 0 ? " empty" : "";
+      const disabled = c === 0 ? " disabled" : "";
       const label = `EV ${evLo.toFixed(2)}–${evHi.toFixed(2)} · ${c} Spiel${c === 1 ? "" : "e"}`;
-      return `<div class="bar ${cls}${emptyClass}" style="height:${heightPct}%"
-        data-bin="${i}" data-ev-lo="${evLo.toFixed(3)}" data-ev-hi="${evHi.toFixed(3)}" data-count="${c}"
+      return `<div class="bar ${cls}${disabled}" style="height:${heightPct}%"
+        data-bin="${i}" data-ev-lo="${evLo.toFixed(2)}" data-ev-hi="${evHi.toFixed(2)}" data-count="${c}"
         data-label="${label}"
-        role="${c > 0 ? "button" : "presentation"}" ${c > 0 ? `tabindex="0" aria-label="${label}"` : ""}
+        role="button" tabindex="${c === 0 ? -1 : 0}" aria-label="${label}"
       ></div>`;
     }).join("");
 
     // Wire click + keyboard on bars
     $$(".histogram .bar").forEach((bar) => {
-      const c = parseInt(bar.dataset.count, 10);
-      if (c === 0) return;
-      bar.addEventListener("click", () => {
-        const binIdx = parseInt(bar.dataset.bin, 10);
+      if (bar.classList.contains("disabled")) return;
+      const trigger = () => {
         const lo = parseFloat(bar.dataset.evLo);
         const hi = parseFloat(bar.dataset.evHi);
-        if (evRange && evRange.lo === lo && evRange.hi === hi) {
-          clearEvRangeFilter();
-        } else {
-          applyEvRangeFilter(lo, hi, binIdx);
-        }
-      });
+        applyEvRangeFilter(lo, hi, parseInt(bar.dataset.bin, 10));
+      };
+      bar.addEventListener("click", trigger);
       bar.addEventListener("keydown", (e) => {
-        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); bar.click(); }
+        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); trigger(); }
       });
     });
   }
@@ -306,7 +304,7 @@
     let out = [...list];
     // EV range filter from histogram (takes precedence over chip filter)
     if (evRange) {
-      out = out.filter((m) => m.ev >= evRange.lo && m.ev < evRange.hi);
+      out = out.filter((m) => m.ev >= evRange.lo && m.ev < evRange.hi + 1e-9);
     } else if (activeFilter === "high") out = out.filter((m) => m.ev >= 2.0);
     else if (activeFilter === "close") out = out.filter((m) => m.isClose);
     else if (activeFilter === "ger") out = out.filter((m) => m.germany);

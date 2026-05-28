@@ -712,139 +712,206 @@ footer .credit {
   color: color-mix(in oklab, var(--paper) 50%, transparent);
 }
 
-/* ---------- Bookies disclosure ---------- */
+/* ---------- Bookies disclosure (dezent) ---------- */
 .bookies-details {
-  margin-top: 20px;
-  border: 1px solid var(--rule-soft);
-  background: var(--paper-3);
+  margin-top: 18px;
+  border-top: 1px solid var(--rule-soft);
+  padding-top: 14px;
 }
 .bookies-details > summary {
   list-style: none;
   cursor: pointer;
-  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 4px 0;
   font-family: var(--mono);
-  font-size: 12px;
+  font-size: 11px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--muted);
   user-select: none;
-  display: flex;
-  align-items: center;
-  gap: 8px;
+  transition: color 0.15s;
 }
 .bookies-details > summary::-webkit-details-marker { display: none; }
-.bookies-details > summary::before {
-  content: "+";
-  font-size: 14px;
-  color: var(--pitch);
-  font-weight: 700;
-  line-height: 1;
-}
-.bookies-details[open] > summary::before { content: "−"; }
+.bookies-details > summary::marker { content: ""; }
 .bookies-details > summary:hover { color: var(--ink); }
+.bookies-details .b-label {
+  text-decoration: underline;
+  text-decoration-color: var(--rule);
+  text-underline-offset: 4px;
+}
+.bookies-details > summary:hover .b-label { text-decoration-color: var(--ink); }
+.bookies-details .b-hint { text-transform: none; letter-spacing: 0.04em; color: var(--muted-2); }
+.bookies-details .b-chev {
+  margin-left: auto;
+  font-family: var(--serif);
+  font-size: 18px;
+  line-height: 1;
+  color: var(--muted);
+  width: 22px; height: 22px;
+  display: grid; place-items: center;
+  border: 1px solid var(--rule);
+  border-radius: 50%;
+  transition: transform 0.25s, color 0.15s, border-color 0.15s;
+}
+.bookies-details[open] > summary .b-chev {
+  transform: rotate(45deg);
+  color: var(--ink);
+  border-color: var(--ink);
+}
 .bookies-grid {
+  margin-top: 14px;
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
-  padding: 0 20px 16px;
+  gap: 0;
+  border-top: 1px solid var(--rule-soft);
 }
 .bookies-grid a {
   font-family: var(--mono);
-  font-size: 11px;
-  text-decoration: none;
+  font-size: 12px;
   color: var(--ink-2);
-  background: var(--paper);
-  border: 1px solid var(--rule-soft);
-  padding: 4px 10px;
-  border-radius: 2px;
-  letter-spacing: 0.04em;
-  transition: border-color 0.12s, color 0.12s;
+  text-decoration: none;
+  padding: 10px 14px;
+  border-right: 1px solid var(--rule-soft);
+  border-bottom: 1px solid var(--rule-soft);
+  transition: color 0.12s, background 0.12s;
+  letter-spacing: 0.01em;
 }
 .bookies-grid a:hover {
-  border-color: var(--pitch);
   color: var(--pitch);
+  background: var(--paper-3);
 }
 .bookies-note {
-  margin: 0;
-  padding: 12px 20px 16px;
-  font-size: 12px;
-  color: var(--muted);
-  border-top: 1px solid var(--rule-soft);
-  line-height: 1.5;
+  margin: 14px 0 0;
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  color: var(--muted-2);
+  line-height: 1.6;
+  max-width: 640px;
+}
+@media (max-width: 760px) {
+  .bookies-details > summary { flex-wrap: wrap; }
+  .bookies-details .b-hint { flex-basis: 100%; order: 3; }
+  .bookies-details .b-chev { order: 2; }
 }
 
-/* ---------- Collapsible summary table ---------- */
+/* ---------- Collapsible (details/summary) ---------- */
 .collapsible {
-  border: 1px solid var(--rule-soft);
-  background: var(--paper-3);
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
 }
 .collapsible > summary {
   list-style: none;
   cursor: pointer;
-  padding: 16px 20px;
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 16px;
+  padding: 18px 4px;
   user-select: none;
-}
-.collapsible > summary::-webkit-details-marker { display: none; }
-.collapsible > summary:hover .toggle-label { color: var(--pitch); }
-.toggle-label {
-  font-family: var(--mono);
-  font-size: 12px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--ink);
   transition: color 0.15s;
 }
-.toggle-hint {
+.collapsible > summary::-webkit-details-marker { display: none; }
+.collapsible > summary::marker { content: ""; }
+.collapsible > summary:hover { color: var(--pitch); }
+.collapsible > summary .toggle-label {
+  font-family: var(--serif);
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+.collapsible > summary .toggle-hint {
   font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
   color: var(--muted);
-  letter-spacing: 0.04em;
 }
-.toggle-chevron {
+.collapsible > summary .toggle-chevron {
   margin-left: auto;
-  font-family: var(--mono);
-  font-size: 18px;
-  font-weight: 400;
-  color: var(--muted);
+  font-family: var(--serif);
+  font-size: 28px;
   line-height: 1;
-  transition: transform 0.2s;
+  color: var(--ink);
+  width: 32px; height: 32px;
+  display: grid; place-items: center;
+  border: 1px solid var(--rule);
+  border-radius: 50%;
+  transition: transform 0.25s, background 0.15s, color 0.15s;
 }
-.collapsible[open] .toggle-chevron { transform: rotate(45deg); }
-.collapsible .summary-wrap {
-  padding: 0 20px 20px;
-  overflow-x: auto;
+.collapsible[open] > summary .toggle-chevron {
+  transform: rotate(45deg);
+  background: var(--ink);
+  color: var(--paper);
+  border-color: var(--ink);
+}
+.collapsible[open] > summary .toggle-label::after {
+  content: " — eingeblendet";
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-left: 8px;
+}
+.collapsible .summary-wrap { padding: 8px 0 24px; overflow-x: auto; }
+@media (max-width: 760px) {
+  .collapsible > summary { padding: 14px 0; gap: 10px; flex-wrap: wrap; }
+  .collapsible > summary .toggle-label { font-size: 18px; }
+  .collapsible > summary .toggle-hint { font-size: 10px; flex-basis: 100%; order: 3; }
+  .collapsible > summary .toggle-chevron { order: 2; }
 }
 
 /* ---------- Histogram interactive states ---------- */
 .histogram .bar {
   cursor: pointer;
   outline: none;
+  transition: background 0.15s, transform 0.15s, opacity 0.15s;
+  min-height: 4px;
+}
+.histogram .bar:not(.disabled):hover {
+  transform: scaleY(1.04);
+  transform-origin: bottom;
 }
 .histogram .bar:focus-visible {
-  outline: 2px solid var(--pitch);
-  outline-offset: 1px;
-}
-.histogram .bar.active {
   outline: 2px solid var(--ink);
   outline-offset: 2px;
-  opacity: 1 !important;
+}
+.histogram .bar.active {
+  background: var(--ink) !important;
+  box-shadow: 0 -2px 0 0 var(--ink);
 }
 .histogram .bar.disabled {
-  opacity: 0.28;
-}
-.histogram .bar.empty {
   cursor: default;
+  opacity: 0.45;
+}
+.histogram .bar:hover::after,
+.histogram .bar.active::after {
+  content: attr(data-label);
+  position: absolute; top: -26px; left: 50%; transform: translateX(-50%);
+  background: var(--ink); color: var(--paper);
+  font-family: var(--mono); font-size: 10px;
+  padding: 3px 7px; white-space: nowrap;
+  z-index: 2;
 }
 
 /* ---------- Histogram hint ---------- */
 .histogram-hint {
-  margin-top: 10px;
+  margin-top: 14px;
   font-family: var(--mono);
   font-size: 11px;
-  color: var(--muted-2);
-  letter-spacing: 0.03em;
+  color: var(--muted);
+  letter-spacing: 0.04em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.histogram-hint::before {
+  content: "";
+  width: 14px; height: 6px;
+  background: var(--ink);
+  display: inline-block;
+  flex-shrink: 0;
 }
 
 /* ---------- EV-range filter pill ---------- */
@@ -852,34 +919,30 @@ footer .credit {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 6px 12px;
-  background: var(--ink);
-  color: var(--paper);
   font-family: var(--mono);
   font-size: 11px;
   letter-spacing: 0.06em;
-  border-radius: 2px;
-  cursor: default;
-  user-select: none;
+  text-transform: uppercase;
+  padding: 7px 10px 7px 12px;
+  background: var(--ink);
+  color: var(--paper);
+  border: 1px solid var(--ink);
+  cursor: pointer;
+  margin-left: -2px;
 }
+.evrange-pill:hover { background: var(--pitch); border-color: var(--pitch); }
 .evrange-pill .dot {
   width: 6px; height: 6px;
+  background: var(--paper);
   border-radius: 50%;
-  background: var(--pitch-soft);
   flex-shrink: 0;
 }
-.evrange-pill .lbl {
-  color: var(--paper);
-}
 .evrange-pill .x {
-  cursor: pointer;
-  color: var(--muted-2);
-  font-size: 14px;
+  font-family: var(--serif);
+  font-size: 16px;
   line-height: 1;
-  padding: 0 2px;
-  transition: color 0.12s;
+  margin-left: 2px;
 }
-.evrange-pill .x:hover { color: var(--paper); }
 
 /* Anchor entry */
 [data-reveal] { opacity: 0; transform: translateY(8px); }
